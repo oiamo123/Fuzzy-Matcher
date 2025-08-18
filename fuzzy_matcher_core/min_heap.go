@@ -1,16 +1,10 @@
 package fuzzymatchercore
 
 import (
-	"time"
+	ft "github.com/oiamo123/fuzzy_matcher/fuzzy_types"
 )
 
-type ExpiryEntry struct {
-	Expiry time.Time
-	Node   *FuzzyMatcherNode
-	ID     int
-}
-
-type ExpiryHeap []ExpiryEntry
+type ExpiryHeap []ft.ExpiryEntry
 
 // Heap interface implementation for min heap (earliest expiry first)
 func (h ExpiryHeap) Len() int           { return len(h) }
@@ -19,7 +13,7 @@ func (h ExpiryHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
 
 // Adds an element to the heap, maintaining the heap property
 func (h *ExpiryHeap) Push(x interface{}) {
-	*h = append(*h, x.(ExpiryEntry))
+	*h = append(*h, x.(ft.ExpiryEntry))
 }
 
 // Removes the element with the earliest expiry time from the heap

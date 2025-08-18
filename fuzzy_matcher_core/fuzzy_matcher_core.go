@@ -10,23 +10,9 @@ import (
 	ft "github.com/oiamo123/fuzzy_matcher/fuzzy_types"
 )
 
-// Key to identify visited nodes
-type VisitKey struct {
-	index int
-	node  *FuzzyMatcherNode
-	edits int
-	depth int
-}
-
-type FieldResult struct {
-	key     ft.Field
-	matches []ft.MatchCandidate
-	err     error
-}
-
 // FuzzyMatcherCore represents the core structure of the fuzzy matcher
 type FuzzyMatcherCore[T ft.FuzzyMatcherDataSource] struct {
-	Root               *FuzzyMatcherNode
+	Root               *ft.FuzzyMatcherNode
 	CoreParams         ft.FuzzyMatcherCoreParameters[T]
 	ExpiryHeap         ExpiryHeap
 	Entries            map[int]T
@@ -39,26 +25,16 @@ const (
 	CalculationMethod ft.CalculationMethod = ft.JaroWinkler
 )
 
-// FuzzyMatcherNode represents a node in the FuzzyMatcher structure
-type FuzzyMatcherNode struct {
-	Char          rune
-	Children      map[rune]*FuzzyMatcherNode
-	IsEndofString bool
-	ID            map[int]bool
-	Parent        *FuzzyMatcherNode
-	Count         int
-}
-
 // Inserts a word into the fuzzy matcher
-func (fmc *FuzzyMatcherCore[T]) Insert(word string, ID int) *FuzzyMatcherNode {
+func (fmc *FuzzyMatcherCore[T]) Insert(word string, ID int) *ft.FuzzyMatcherNode {
 	node := fmc.Root
 
 	for _, char := range word {
 		c := rune(char)
 
 		if node.Children[c] == nil {
-			node.Children[c] = &FuzzyMatcherNode{
-				Children: make(map[rune]*FuzzyMatcherNode),
+			node.Children[c] = &ft.FuzzyMatcherNode{
+				Children: make(map[rune]*ft.FuzzyMatcherNode),
 				Char:     c,
 				Parent:   node,
 				Count:    0,
@@ -88,8 +64,8 @@ func (fmc *FuzzyMatcherCore[T]) Build(entries []T) error {
 
 	// Init the root node if it is nil
 	if fmc.Root == nil {
-		fmc.Root = &FuzzyMatcherNode{
-			Children: make(map[rune]*FuzzyMatcherNode),
+		fmc.Root = &ft.FuzzyMatcherNode{
+			Children: make(map[rune]*ft.FuzzyMatcherNode),
 		}
 	}
 
@@ -111,7 +87,7 @@ func (fmc *FuzzyMatcherCore[T]) Build(entries []T) error {
 					return fmt.Errorf("UseExpiration set to true. Cannot insert entry with no expiry: %v", entry)
 				}
 
-				heap.Push(&fmc.ExpiryHeap, ExpiryEntry{
+				heap.Push(&fmc.ExpiryHeap, ft.ExpiryEntry{
 					Node:   node,
 					Expiry: fuzzyEntry.Expiry,
 					ID:     fuzzyEntry.ID,
@@ -139,7 +115,7 @@ func (fmc *FuzzyMatcherCore[T]) SearchFuzzy(entry ft.FuzzyMatcherDataSource) (bo
 	parameters := entry.GetSearchParameters()
 
 	var wg sync.WaitGroup
-	results := make(chan FieldResult, len(fuzzyEntry.Key))
+	results := make(chan ft.FieldResult, len(fuzzyEntry.Key))
 
 	// Per-field goroutines
 	for key, field := range fuzzyEntry.Key {
@@ -163,24 +139,25 @@ func (fmc *FuzzyMatcherCore[T]) SearchFuzzy(entry ft.FuzzyMatcherDataSource) (bo
 				}
 			}
 
-			recurseParameters := RecurseParameters{
-				word: []rune(searchString),
-				index: 0,
-				node: fmc.Root,
-				path: make([]rune, 0),
-				maxDepth: parameters.MaxDepth[key],
-				depth: 0,
-				depthIncrement: 0,
-				numEdits: 0,
-				maxEdits: parameters.MaxEdits[key],
-				numEditsIncrement: 0,
-				editableFields: editableFields,
-				visited: make(map[VisitKey]struct{}),
+			recurseParameters := ft.RecurseParameters{
+				Word: []rune(searchString),
+				Index: 0,
+				Node: fmc.Root,
+				Path: make([]rune, 0),
+				MaxDepth: parameters.MaxDepth[key],
+				Depth: 0,
+				DepthIncrement: 0,
+				NumEdits: 0,
+				MaxEdits: parameters.MaxEdits[key],
+				NumEditsIncrement: 0,
+				EditableFields: editableFields,
+				Visited: make(map[ft.VisitKey]struct{}),
+				CalculationMethod: parameters.CalculationMethods[key],
 			}
 
 			matches := fmc.Recurse(recurseParameters)
 
-			results <- FieldResult{key: key, matches: matches}
+			results <- ft.FieldResult{Key: key, Matches: matches}
 		}(key, field)
 	}
 
@@ -193,11 +170,11 @@ func (fmc *FuzzyMatcherCore[T]) SearchFuzzy(entry ft.FuzzyMatcherDataSource) (bo
 	// Collect all results first (thread-safe)
 	allResults := make(map[ft.Field][]ft.MatchCandidate)
 	for res := range results {
-		if res.err != nil {
+		if res.Err != nil {
 			// Handle error if needed
 			continue
 		}
-		allResults[res.key] = res.matches
+		allResults[res.Key] = res.Matches
 	}
 
 	// Now merge results sequentially (no race conditions)
@@ -257,7 +234,10 @@ func (fmc *FuzzyMatcherCore[T]) SearchFuzzy(entry ft.FuzzyMatcherDataSource) (bo
 			matchNormalized := fmc.NormalizeField(matchVal)
 			originalNormalized := fmc.NormalizeField(origVal)
 
-			similarity := fmc.CalculateSimilarity(originalNormalized, matchNormalized, parameters.CalculationMethods[key], parameters.MinDistances[key])
+			similarity := fmc.CalculateSimilarity(originalNormalized, matchNormalized, parameters.CalculationMethods[key])
+			if similarity < min {
+				similarity = 0
+			}
 
 			// if the min distance is not 0 and the distance == 0
 			if min == 0 && similarity == 0 {

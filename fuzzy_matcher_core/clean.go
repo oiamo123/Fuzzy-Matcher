@@ -8,7 +8,7 @@ import (
 )
 
 // Propogate backwards to prune the fuzzy matcher
-func (fmc *FuzzyMatcherCore[T]) Prune(node *FuzzyMatcherNode) {
+func (fmc *FuzzyMatcherCore[T]) Prune(node *ft.FuzzyMatcherNode) {
 	if node == nil {
 		return
 	}
@@ -37,7 +37,7 @@ func (fmc *FuzzyMatcherCore[T]) Clean() {
 
 	now := time.Now()
 	for fmc.ExpiryHeap.Len() > 0 && fmc.ExpiryHeap[0].Expiry.Before(now) {
-		entry := heap.Pop(&fmc.ExpiryHeap).(ExpiryEntry)
+		entry := heap.Pop(&fmc.ExpiryHeap).(ft.ExpiryEntry)
 
 		// Remove the ID from the node
 		delete(entry.Node.ID, entry.ID)

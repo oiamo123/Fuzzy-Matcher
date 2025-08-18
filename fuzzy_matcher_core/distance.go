@@ -16,16 +16,10 @@ func maxInt(a, b int) int {
 
 // Calculate the distance between 2 strings based on the specified method
 // Returns a similarity score between 0 and 1 where 1 is a 100% match
-func (fmc *FuzzyMatcherCore[T]) CalculateSimilarity(s1, s2 string, distanceMethod ft.CalculationMethod, minSimilarity float64) float64 {
+func (fmc *FuzzyMatcherCore[T]) CalculateSimilarity(s1, s2 string, distanceMethod ft.CalculationMethod) float64 {
 	switch distanceMethod {
 	case ft.JaroWinkler:
-		sim := matchr.JaroWinkler(s1, s2, false)
-
-		if sim >= minSimilarity {
-			return sim
-		}
-
-		return 0
+		return matchr.JaroWinkler(s1, s2, false)
 
 	case ft.Levenshtein:
 		maxLen := maxInt(len(s1), len(s2))
@@ -36,10 +30,7 @@ func (fmc *FuzzyMatcherCore[T]) CalculateSimilarity(s1, s2 string, distanceMetho
 		dist := matchr.Levenshtein(s1, s2)
 		sim := 1.0 - float64(dist)/float64(maxLen)
 
-		if sim >= minSimilarity {
-			return sim
-		}
-		return 0
+		return sim
 
 	default:
 		return 1
