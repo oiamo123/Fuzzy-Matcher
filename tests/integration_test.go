@@ -47,8 +47,8 @@ func TestFuzzyMatcher_Integration(t *testing.T) {
 
 	// Build fuzzyMatcherCore manually for testing (bypassing Init/Sync which requires network)
 	fuzzyMatcherCore := &fmc.FuzzyMatcherCore[fc.WaveMembershipSource]{
-		Root: &fmc.FuzzyMatcherNode{
-			Children: make(map[rune]*fmc.FuzzyMatcherNode),
+		Root: &ft.FuzzyMatcherNode{
+			Children: make(map[rune]*ft.FuzzyMatcherNode),
 		},
 	}
 	fuzzyMatcherCore.Build(testMembers)

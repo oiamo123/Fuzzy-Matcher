@@ -642,8 +642,8 @@ func TestFuzzyMatcherCore_EmptySearch(t *testing.T) {
 	}
 
 	fuzzyMatcherCore := &fmc.FuzzyMatcherCore[fc.WaveMembershipSource]{
-		Root: &fmc.FuzzyMatcherNode{
-			Children: make(map[rune]*fmc.FuzzyMatcherNode),
+		Root: &ft.FuzzyMatcherNode{
+			Children: make(map[rune]*ft.FuzzyMatcherNode),
 		},
 		CoreParams: params,
 	}
