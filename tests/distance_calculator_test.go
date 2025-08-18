@@ -153,7 +153,7 @@ func TestFuzzyMatcherCore_CalculateSimilarity_JaroWinkler(t *testing.T) {
 
 	for _, tt := range distanceTests.JaroWinklerTests {
 		t.Run(tt.Name, func(t *testing.T) {
-			result := fuzzyMatcherCore.CalculateSimilarity(tt.S1, tt.S2, ft.JaroWinkler, 0.0)
+			result := fuzzyMatcherCore.CalculateSimilarity(tt.S1, tt.S2, ft.JaroWinkler)
 			assert.InDelta(t, tt.Expected, result, tt.Delta,
 				"JaroWinkler(%q, %q) = %f, expected ~%f", tt.S1, tt.S2, result, tt.Expected)
 		})
@@ -168,7 +168,7 @@ func TestFuzzyMatcherCore_CalculateSimilarity_Levenshtein(t *testing.T) {
 
 	for _, tt := range distanceTests.LevenshteinTests {
 		t.Run(tt.Name, func(t *testing.T) {
-			result := fuzzyMatcherCore.CalculateSimilarity(tt.S1, tt.S2, ft.Levenshtein, 0.0)
+			result := fuzzyMatcherCore.CalculateSimilarity(tt.S1, tt.S2, ft.Levenshtein)
 			assert.InDelta(t, tt.Expected, result, tt.Delta,
 				"Levenshtein(%q, %q) = %f, expected ~%f", tt.S1, tt.S2, result, tt.Expected)
 		})
@@ -184,7 +184,7 @@ func TestFuzzyMatcherCore_CalculateSimilarity_Default(t *testing.T) {
 
 	for _, tt := range distanceTests.DefaultTests {
 		t.Run(tt.Name, func(t *testing.T) {
-			result := fuzzyMatcherCore.CalculateSimilarity(tt.S1, tt.S2, ft.Default, 0.0)
+			result := fuzzyMatcherCore.CalculateSimilarity(tt.S1, tt.S2, ft.Default)
 			assert.Equal(t, tt.Expected, result,
 				"Default(%q, %q) = %f, expected %f", tt.S1, tt.S2, result, tt.Expected)
 		})
@@ -735,7 +735,7 @@ func BenchmarkFuzzyMatcherCore_CalculateSimilarity_JaroWinkler(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = fuzzyMatcherCore.CalculateSimilarity(s1, s2, ft.JaroWinkler, 0.0)
+		_ = fuzzyMatcherCore.CalculateSimilarity(s1, s2, ft.JaroWinkler)
 	}
 }
 
@@ -746,6 +746,6 @@ func BenchmarkFuzzyMatcherCore_CalculateSimilarity_Levenshtein(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = fuzzyMatcherCore.CalculateSimilarity(s1, s2, ft.Levenshtein, 0.0)
+		_ = fuzzyMatcherCore.CalculateSimilarity(s1, s2, ft.Levenshtein)
 	}
 }
