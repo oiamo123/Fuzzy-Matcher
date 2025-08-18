@@ -1,0 +1,228 @@
+{
+    "test_cases": [
+         {
+            "name": "Nickname_Ben_to_Benjamin",
+            "description": "Should find Benjamin Anderson when searching for Ben Anderson",
+            "query": {
+                "firstname": "Ben",
+                "surname": "Anderson",
+                "birthdate": "1989-09-14",
+                "event_start_utc": "2999-08-20T18:00:00Z"
+            },
+            "expected": {
+                "should_find": true,
+                "min_matches": 1,
+                "expected_matches": [
+                    {
+                        "member_id": 9,
+                        "min_score": 0.6,
+                        "max_score": 1.0,
+                        "note": "Ben should fuzzy match to Benjamin"
+                    }
+                ]
+            }
+        }, 
+        {
+            "name": "Nickname_Mike_to_Michael",
+            "description": "Should find Michael Brown when searching for Mike Brown",
+            "query": {
+                "firstname": "Mike",
+                "surname": "Brown",
+                "birthdate": "1992-08-22",
+                "event_start_utc": "2999-08-20T18:00:00Z"
+            },
+            "expected": {
+                "should_find": true,
+                "min_matches": 1,
+                "expected_matches": [
+                    {
+                        "member_id": 3,
+                        "min_score": 0.6,
+                        "max_score": 1.0,
+                        "note": "Mike should fuzzy match to Michael"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "Nickname_Ben_to_Benjamin",
+            "description": "Should find Benjamin Anderson when searching for Ben Anderson",
+            "query": {
+                "firstname": "Ben",
+                "surname": "Anderson",
+                "birthdate": "1989-09-14",
+                "event_start_utc": "2999-08-20T18:00:00Z"
+            },
+            "expected": {
+                "should_find": true,
+                "min_matches": 1,
+                "expected_matches": [],
+                "note": "Ben should fuzzy match to Benjamin"
+            }
+        },
+        {
+            "name": "Nickname_Liz_to_Elizabeth",
+            "description": "Should not find someone with Elizabeth when searching for Liz",
+            "query": {
+                "firstname": "Liz",
+                "surname": "Smith",
+                "birthdate": "1990-05-15",
+                "event_start_utc": "2999-08-20T18:00:00Z"
+            },
+            "expected": {
+                "should_find": false,
+                "min_matches": 0,
+                "expected_matches": [],
+                "note": "No Elizabeth in our test data, so Liz won't match anyone"
+            }
+        },
+        {
+            "name": "Nickname_Bill_to_William",
+            "description": "Should find William Moore when searching for Bill Moore",
+            "query": {
+                "firstname": "Bill",
+                "surname": "Moore",
+                "birthdate": "1987-11-08",
+                "event_start_utc": "2999-08-20T18:00:00Z"
+            },
+            "expected": {
+                "should_find": true,
+                "min_matches": 1,
+                "expected_matches": [
+                    {
+                        "member_id": 7,
+                        "min_score": 0.6,
+                        "max_score": 1.0,
+                        "note": "Bill should fuzzy match to William"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "Nickname_Alex_to_Alexander",
+            "description": "Should find Alexander Jackson when searching for Alex Jackson",
+            "query": {
+                "firstname": "Alex",
+                "surname": "Jackson",
+                "birthdate": "1986-02-28",
+                "event_start_utc": "2999-08-20T18:00:00Z"
+            },
+            "expected": {
+                "should_find": true,
+                "min_matches": 1,
+                "expected_matches": [
+                    {
+                        "member_id": 11,
+                        "min_score": 0.6,
+                        "max_score": 1.0,
+                        "note": "Alex should fuzzy match to Alexander"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "Nickname_Chris_to_Christopher",
+            "description": "Should find Christopher Walker when searching for Chris Walker",
+            "query": {
+                "firstname": "Chris",
+                "surname": "Walker",
+                "birthdate": "1987-04-02",
+                "event_start_utc": "2999-08-20T18:00:00Z"
+            },
+            "expected": {
+                "should_find": true,
+                "min_matches": 1,
+                "expected_matches": [
+                    {
+                        "member_id": 19,
+                        "min_score": 0.6,
+                        "max_score": 1.0,
+                        "note": "Chris should fuzzy match to Christopher"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "Nickname_Matt_to_Matthew",
+            "description": "Should find Matthew Lewis when searching for Matt Lewis",
+            "query": {
+                "firstname": "Matt",
+                "surname": "Lewis",
+                "birthdate": "1995-05-23",
+                "event_start_utc": "2999-08-20T18:00:00Z"
+            },
+            "expected": {
+                "should_find": true,
+                "min_matches": 1,
+                "expected_matches": [
+                    {
+                        "member_id": 17,
+                        "min_score": 0.6,
+                        "max_score": 1.0,
+                        "note": "Matt should fuzzy match to Matthew"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "Nickname_Dan_to_Daniel",
+            "description": "Should find Daniel Garcia when searching for Dan Garcia",
+            "query": {
+                "firstname": "Dan",
+                "surname": "Garcia",
+                "birthdate": "1988-08-07",
+                "event_start_utc": "2999-08-20T18:00:00Z"
+            },
+            "expected": {
+                "should_find": true,
+                "min_matches": 1,
+                "expected_matches": [
+                    {
+                        "member_id": 15,
+                        "min_score": 0.6,
+                        "max_score": 1.0,
+                        "note": "Dan should fuzzy match to Daniel"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "Nickname_Reverse_Michael_to_Mike",
+            "description": "Should find Michael Brown when searching full name instead of nickname",
+            "query": {
+                "firstname": "Michael",
+                "surname": "Brown",
+                "birthdate": "1992-08-22",
+                "event_start_utc": "2999-08-20T18:00:00Z"
+            },
+            "expected": {
+                "should_find": true,
+                "min_matches": 1,
+                "expected_matches": [
+                    {
+                        "member_id": 3,
+                        "min_score": 0.95,
+                        "max_score": 1.0,
+                        "note": "Exact match should work perfectly"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "Nickname_Difficult_Match",
+            "description": "Test difficult nickname like Bob -> Robert (very different)",
+            "query": {
+                "firstname": "Bob",
+                "surname": "Johnson",
+                "birthdate": "1985-12-03",
+                "event_start_utc": "2999-08-20T18:00:00Z"
+            },
+            "expected": {
+                "should_find": false,
+                "min_matches": 0,
+                "expected_matches": [],
+                "note": "Bob to Sarah is too different, shouldn't match even with fuzzy logic"
+            }
+        }
+    ]
+}

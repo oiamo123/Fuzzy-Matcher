@@ -1,0 +1,144 @@
+{
+  "test_cases": [
+    {
+      "name": "Short names force exact matching",
+      "member": {
+        "firstname": "Jo",
+        "surname": "Li",
+        "birthdate": "1990-05-15",
+        "event_start_utc": "2999-08-16T12:00:00Z"
+      },
+      "expected_max_depth": {
+        "firstname": 0,
+        "surname": 0,
+        "birthdate": 0
+      },
+      "expected_max_edits": {
+        "firstname": 0,
+        "surname": 0,
+        "birthdate": 0
+      },
+      "description": "Average name length 2 should force exact matching for ALL fields"
+    },
+    {
+      "name": "Very short names force exact matching",
+      "member": {
+        "firstname": "A",
+        "surname": "B",
+        "birthdate": "1985-03-20",
+        "event_start_utc": "2999-08-16T12:00:00Z"
+      },
+      "expected_max_depth": {
+        "firstname": 0,
+        "surname": 0,
+        "birthdate": 0
+      },
+      "expected_max_edits": {
+        "firstname": 0,
+        "surname": 0,
+        "birthdate": 0
+      },
+      "description": "Average name length 1 should force exact matching for ALL fields"
+    },
+    {
+      "name": "Borderline short names force exact matching",
+      "member": {
+        "firstname": "Lee",
+        "surname": "Wu",
+        "birthdate": "1992-08-10",
+        "event_start_utc": "2999-08-16T12:00:00Z"
+      },
+      "expected_max_depth": {
+        "firstname": 0,
+        "surname": 0,
+        "birthdate": 0
+      },
+      "expected_max_edits": {
+        "firstname": 0,
+        "surname": 0,
+        "birthdate": 0
+      },
+      "description": "Average name length 2.5 should force exact matching for ALL fields"
+    },
+    {
+      "name": "Exactly at threshold forces exact matching",
+      "member": {
+        "firstname": "Ann",
+        "surname": "Lee",
+        "birthdate": "1987-06-14",
+        "event_start_utc": "2999-08-16T12:00:00Z"
+      },
+      "expected_max_depth": {
+        "firstname": 0,
+        "surname": 0,
+        "birthdate": 0
+      },
+      "expected_max_edits": {
+        "firstname": 0,
+        "surname": 0,
+        "birthdate": 0
+      },
+      "description": "Average name length exactly 3 should force exact matching for ALL fields"
+    },
+    {
+      "name": "Normal names allow fuzzy matching",
+      "member": {
+        "firstname": "John",
+        "surname": "Smith",
+        "birthdate": "1988-12-05",
+        "event_start_utc": "2999-08-16T12:00:00Z"
+      },
+      "expected_max_depth": {
+        "firstname": 6,
+        "surname": 2,
+        "birthdate": 2
+      },
+      "expected_max_edits": {
+        "firstname": 6,
+        "surname": 2,
+        "birthdate": 2
+      },
+      "description": "Average name length 4.5 should allow fuzzy matching"
+    },
+    {
+      "name": "Long names allow fuzzy matching",
+      "member": {
+        "firstname": "Alexander",
+        "surname": "Johnson",
+        "birthdate": "1995-01-25",
+        "event_start_utc": "2999-08-16T12:00:00Z"
+      },
+      "expected_max_depth": {
+        "firstname": 6,
+        "surname": 2,
+        "birthdate": 2
+      },
+      "expected_max_edits": {
+        "firstname": 6,
+        "surname": 2,
+        "birthdate": 2
+      },
+      "description": "Average name length 8 should allow fuzzy matching"
+    },
+    {
+      "name": "Just above threshold allows fuzzy matching",
+      "member": {
+        "firstname": "Jane",
+        "surname": "Doe",
+        "birthdate": "1987-06-14",
+        "event_start_utc": "2999-08-16T12:00:00Z"
+      },
+      "expected_max_depth": {
+        "firstname": 0,
+        "surname": 0,
+        "birthdate": 0
+      },
+      "expected_max_edits": {
+        "firstname": 0,
+        "surname": 0,
+        "birthdate": 0
+      },
+      "description": "Average name length 3.5 should force exact matching (at threshold)"
+    }
+  ]
+}

@@ -1,0 +1,161 @@
+{
+    "test_cases": [
+        {
+            "name": "ExactMatch_JohnSmith",
+            "description": "Exact match should find John Smith with high score",
+            "query": {
+                "firstname": "John",
+                "surname": "Smith", 
+                "birthdate": "1990-05-15",
+                "event_start_utc": "2999-08-20T18:00:00Z"
+            },
+            "expected": {
+                "should_find": true,
+                "min_matches": 1,
+                "expected_matches": [
+                    {
+                        "member_id": 1,
+                        "min_score": 0.95,
+                        "max_score": 1.0
+                    }
+                ]
+            }
+        },
+        {
+            "name": "FuzzyMatch_JonSmith", 
+            "description": "Fuzzy match for 'Jon Smith' should find 'John Smith'",
+            "query": {
+                "firstname": "Jon",
+                "surname": "Smith",
+                "birthdate": "1990-05-15",
+                "event_start_utc": "2999-08-20T18:00:00Z"
+            },
+            "expected": {
+                "should_find": true,
+                "min_matches": 1,
+                "expected_matches": [
+                    {
+                        "member_id": 1,
+                        "min_score": 0.85,
+                        "max_score": 0.99
+                    }
+                ]
+            }
+        },
+        {
+            "name": "FuzzyMatch_MichaelBrown_Typo",
+            "description": "Fuzzy match for 'Micheal Brown' (missing 'a') should find 'Michael Brown'", 
+            "query": {
+                "firstname": "Micheal",
+                "surname": "Brown",
+                "birthdate": "1992-08-22",
+                "event_start_utc": "2999-08-20T18:00:00Z"
+            },
+            "expected": {
+                "should_find": true,
+                "min_matches": 1,
+                "expected_matches": [
+                    {
+                        "member_id": 3,
+                        "min_score": 0.85,
+                        "max_score": 1.0
+                    }
+                ]
+            }
+        },
+        {
+            "name": "FuzzyMatch_SarahJohnson_MultipleTypos",
+            "description": "Multiple typos: 'Sara Jhonson' should find 'Sarah Johnson'",
+            "query": {
+                "firstname": "Sara",
+                "surname": "Jhonson", 
+                "birthdate": "1985-12-03",
+                "event_start_utc": "2999-08-20T18:00:00Z"
+            },
+            "expected": {
+                "should_find": true,
+                "min_matches": 1,
+                "expected_matches": [
+                    {
+                        "member_id": 2,
+                        "min_score": 0.75,
+                        "max_score": 1.0
+                    }
+                ]
+            }
+        },
+        {
+            "name": "NoMatch_CompletelyDifferent",
+            "description": "Completely different name should not match",
+            "query": {
+                "firstname": "Xyz",
+                "surname": "Nonexistent",
+                "birthdate": "2000-01-01",
+                "event_start_utc": "2999-08-20T18:00:00Z"
+            },
+            "expected": {
+                "should_find": false,
+                "min_matches": 0,
+                "expected_matches": []
+            }
+        },
+        {
+            "name": "PartialMatch_CorrectName_WrongBirthdate",
+            "description": "Correct name but wrong birthdate",
+            "query": {
+                "firstname": "John",
+                "surname": "Smith",
+                "birthdate": "1985-01-01",
+                "event_start_utc": "2999-08-20T18:00:00Z"
+            },
+            "expected": {
+                "should_find": false,
+                "min_matches": 0,
+                "expected_matches": [],
+                "note": "Wrong birthdate should eliminate match due to high weight (0.4)"
+            }
+        },
+        {
+            "name": "FuzzyMatch_EmmaDavis",
+            "description": "Test fuzzy match for Emma Davis with small typo",
+            "query": {
+                "firstname": "Ema",
+                "surname": "Davis",
+                "birthdate": "1988-03-10",
+                "event_start_utc": "2999-08-20T18:00:00Z"
+            },
+            "expected": {
+                "should_find": true,
+                "min_matches": 1,
+                "expected_matches": [
+                    {
+                        "member_id": 4,
+                        "min_score": 0.85,
+                        "max_score": 1.0
+                    }
+                ]
+            }
+        },
+        {
+            "name": "FuzzyMatch_JamesWilson_FirstnameTypo",
+            "description": "Firstname typo: 'Jmes Wilson' should find 'James Wilson'",
+            "query": {
+                "firstname": "Jmes",
+                "surname": "Wilson",
+                "birthdate": "1995-01-18",
+                "event_start_utc": "2999-08-20T18:00:00Z"
+            },
+            "expected": {
+                "should_find": true,
+                "min_matches": 1,
+                "expected_matches": [
+                    {
+                        "member_id": 5,
+                        "min_score": 0.75,
+                        "max_score": 1.0
+                    }
+                ]
+            }
+        }
+    ]
+}

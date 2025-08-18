@@ -1,0 +1,85 @@
+{
+  "basic_test_members": [
+    {
+      "id": 1,
+      "firstname": "John",
+      "surname": "Smith",
+      "birthdate": "1990-05-15",
+      "event_start_utc": "2999-08-20T18:00:00Z",
+      "event_end_utc": "2999-08-20T23:00:00Z",
+      "note": "Basic test member"
+    },
+    {
+      "id": 2,
+      "firstname": "Jane",
+      "surname": "Doe",
+      "birthdate": "1985-12-03",
+      "event_start_utc": "2999-08-20T18:00:00Z",
+      "event_end_utc": "2999-08-20T23:00:00Z",
+      "note": "Second basic test member"
+    }
+  ],
+  "test_queries": {
+    "exact_match": {
+      "id": 999,
+      "firstname": "John",
+      "surname": "Smith",
+      "birthdate": "1990-05-15",
+      "event_start_utc": "2999-08-20T18:00:00Z",
+      "note": "Exact match query"
+    },
+    "fuzzy_match": {
+      "id": 999,
+      "firstname": "Jon",
+      "surname": "Smyth",
+      "birthdate": "1990-05-15",
+      "event_start_utc": "2999-08-20T18:00:00Z",
+      "note": "Fuzzy match with typos: missing 'h' in Jon, 'y' instead of 'i' in Smyth"
+    },
+    "empty_search": {
+      "id": 1,
+      "firstname": "John",
+      "surname": "Smith",
+      "birthdate": "1990-05-15",
+      "event_start_utc": "2999-08-20T18:00:00Z",
+      "note": "Query for empty trie test"
+    }
+  },
+  "validation_data": {
+    "fuzzy_entry_keys": {
+      "firstname": "john",
+      "surname": "smith"
+    },
+    "fuzzy_entry_metadata": {
+      "id": 123,
+      "expiry": "2025-12-31T00:00:00Z"
+    },
+    "parameters": {
+      "max_depth": {
+        "firstname": 5,
+        "surname": 3
+      },
+      "max_edits": {
+        "firstname": 3,
+        "surname": 2
+      },
+      "weights": {
+        "firstname": 0.4,
+        "surname": 0.6
+      },
+      "calculation_methods": {
+        "firstname": "JaroWinkler",
+        "surname": "JaroWinkler"
+      },
+      "editable_fields": {
+        "firstname": true,
+        "surname": true
+      },
+      "min_distances": {
+        "firstname": 0.8,
+        "surname": 0.9
+      },
+      "field_order": ["firstname", "surname"]
+    }
+  }
+}

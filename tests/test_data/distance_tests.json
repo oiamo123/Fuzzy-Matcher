@@ -1,0 +1,105 @@
+{
+  "jaro_winkler_tests": [
+    {
+      "name": "Identical strings",
+      "s1": "john",
+      "s2": "john",
+      "expected": 1.0,
+      "delta": 0.001
+    },
+    {
+      "name": "Completely different strings",
+      "s1": "john",
+      "s2": "xyz",
+      "expected": 0.0,
+      "delta": 0.1
+    },
+    {
+      "name": "Similar names",
+      "s1": "john",
+      "s2": "jon",
+      "expected": 0.85,
+      "delta": 0.15
+    },
+    {
+      "name": "Prefix advantage",
+      "s1": "smith",
+      "s2": "smyth",
+      "expected": 0.8,
+      "delta": 0.2,
+      "note": "Common prefix 'sm'"
+    },
+    {
+      "name": "Empty strings",
+      "s1": "",
+      "s2": "",
+      "expected": 0.0,
+      "delta": 0.001,
+      "note": "JaroWinkler returns 0 for empty strings"
+    },
+    {
+      "name": "One empty string",
+      "s1": "john",
+      "s2": "",
+      "expected": 0.0,
+      "delta": 0.001,
+      "note": "JaroWinkler returns 0 for one empty string"
+    }
+  ],
+  "levenshtein_tests": [
+    {
+      "name": "Identical strings",
+      "s1": "hello",
+      "s2": "hello",
+      "expected": 1.0,
+      "delta": 0.001,
+      "note": "Levenshtein returns 0 for identical strings"
+    },
+    {
+      "name": "Single character difference",
+      "s1": "hello",
+      "s2": "hallo",
+      "expected": 0.8,
+      "delta": 0.15,
+      "note": "'e' -> 'a', Levenshtein returns 1 edit distance"
+    },
+    {
+      "name": "Empty strings",
+      "s1": "",
+      "s2": "",
+      "expected": 1.0,
+      "delta": 0.001,
+      "note": "No distance"
+    }
+  ],
+  "default_tests": [
+    {
+      "name": "Identical strings",
+      "s1": "20250815",
+      "s2": "20250815",
+      "expected": 1.0,
+      "note": "Default always returns 1"
+    },
+    {
+      "name": "Different strings",
+      "s1": "20250815",
+      "s2": "20250816",
+      "expected": 1.0,
+      "note": "Default always returns 1"
+    },
+    {
+      "name": "Empty strings",
+      "s1": "",
+      "s2": "",
+      "expected": 1.0,
+      "note": "Default always returns 1"
+    },
+    {
+      "name": "One empty string",
+      "s1": "20250815",
+      "s2": "",
+      "expected": 1.0,
+      "note": "Default always returns 1"
+    }
+  ]
+}

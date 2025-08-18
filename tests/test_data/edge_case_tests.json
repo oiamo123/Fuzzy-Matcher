@@ -1,0 +1,74 @@
+{
+    "test_cases": [
+        {
+            "name": "StressTest_SurnameMatch",
+            "description": "Should find match based primarily on surname and birthdate",
+            "query": {
+                "firstname": "Janes",
+                "surname": "Wilson",
+                "birthdate": "1995-01-18",
+                "event_start_utc": "2999-08-20T18:00:00Z"
+            },
+            "expected": {
+                "should_find": true,
+                "min_matches": 1,
+                "expected_matches": [
+                    {
+                        "member_id": 5,
+                        "min_score": 0.7,
+                        "max_score": 1.0,
+                        "note": "James Wilson should match with small firstname typo"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "EdgeCase_VeryShortName",
+            "description": "Very short names should handle gracefully",
+            "query": {
+                "firstname": "Al",
+                "surname": "Li",
+                "birthdate": "1988-01-01",
+                "event_start_utc": "2999-08-20T18:00:00Z"
+            },
+            "expected": {
+                "should_find": false,
+                "min_matches": 0,
+                "expected_matches": [],
+                "note": "Very short names should be filtered out"
+            }
+        },
+        {
+            "name": "EdgeCase_MaximumTypos",
+            "description": "Test with maximum allowed typos",
+            "query": {
+                "firstname": "Jahn",
+                "surname": "Smythe",
+                "birthdate": "1990-05-15",
+                "event_start_utc": "2999-08-20T18:00:00Z"
+            },
+            "expected": {
+                "should_find": false,
+                "min_matches": 0,
+                "expected_matches": [],
+                "note": "Too many typos should prevent matching"
+            }
+        },
+        {
+            "name": "Performance_CommonNames",
+            "description": "Test performance with very common name patterns",
+            "query": {
+                "firstname": "John",
+                "surname": "Johnson",
+                "birthdate": "1990-01-01",
+                "event_start_utc": "2999-08-20T18:00:00Z"
+            },
+            "expected": {
+                "should_find": false,
+                "min_matches": 0,
+                "expected_matches": [],
+                "note": "No exact match exists in data"
+            }
+        }
+    ]
+}
