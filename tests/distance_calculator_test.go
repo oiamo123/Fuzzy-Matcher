@@ -111,11 +111,11 @@ func loadBasicTestData(t *testing.T) BasicTestData {
 	return testData
 }
 
-func convertToWaveMember(member BasicTestMember) fc.WaveMembershipSource {
+func convertToWaveMember(member BasicTestMember) fc.ExampleSource {
 	birthdate, _ := time.Parse("2006-01-02", member.Birthdate)
 	eventEnd, _ := time.Parse(time.RFC3339, member.EventEndUtc)
 
-	return fc.WaveMembershipSource{
+	return fc.ExampleSource{
 		ID:          member.ID,
 		Firstname:   member.Firstname,
 		Surname:     member.Surname,
@@ -124,7 +124,7 @@ func convertToWaveMember(member BasicTestMember) fc.WaveMembershipSource {
 	}
 }
 
-func convertQueryToWaveMember(query TestQuery) fc.WaveMembershipSource {
+func convertQueryToWaveMember(query TestQuery) fc.ExampleSource {
 	birthdate, _ := time.Parse("2006-01-02", query.Birthdate)
 
 	// Parse EventStartUtc if provided, otherwise default to future date
@@ -136,7 +136,7 @@ func convertQueryToWaveMember(query TestQuery) fc.WaveMembershipSource {
 		eventStartUtc = time.Date(2999, 1, 1, 0, 0, 0, 0, time.UTC)
 	}
 
-	return fc.WaveMembershipSource{
+	return fc.ExampleSource{
 		ID:            query.ID,
 		Firstname:     query.Firstname,
 		Surname:       query.Surname,
@@ -146,7 +146,7 @@ func convertQueryToWaveMember(query TestQuery) fc.WaveMembershipSource {
 }
 
 func TestFuzzyMatcherCore_CalculateSimilarity_JaroWinkler(t *testing.T) {
-	fuzzyMatcherCore := &fmc.FuzzyMatcherCore[fc.WaveMembershipSource]{}
+	fuzzyMatcherCore := &fmc.FuzzyMatcherCore[fc.ExampleSource]{}
 
 	// Load test data from JSON
 	distanceTests := loadDistanceTestData(t)
@@ -161,7 +161,7 @@ func TestFuzzyMatcherCore_CalculateSimilarity_JaroWinkler(t *testing.T) {
 }
 
 func TestFuzzyMatcherCore_CalculateSimilarity_Levenshtein(t *testing.T) {
-	fuzzyMatcherCore := &fmc.FuzzyMatcherCore[fc.WaveMembershipSource]{}
+	fuzzyMatcherCore := &fmc.FuzzyMatcherCore[fc.ExampleSource]{}
 
 	// Load test data from JSON
 	distanceTests := loadDistanceTestData(t)
@@ -177,7 +177,7 @@ func TestFuzzyMatcherCore_CalculateSimilarity_Levenshtein(t *testing.T) {
 
 // Can't really test default because number of edits is considered before it gets to the distance metric
 func TestFuzzyMatcherCore_CalculateSimilarity_Default(t *testing.T) {
-	fuzzyMatcherCore := &fmc.FuzzyMatcherCore[fc.WaveMembershipSource]{}
+	fuzzyMatcherCore := &fmc.FuzzyMatcherCore[fc.ExampleSource]{}
 
 	// Load test data from JSON
 	distanceTests := loadDistanceTestData(t)
@@ -195,20 +195,20 @@ func TestFuzzyMatcherCore_Insert_And_Search(t *testing.T) {
 	// Load test data from JSON
 	basicTests := loadBasicTestData(t)
 
-	// Convert JSON members to WaveMembershipSource
-	members := make([]fc.WaveMembershipSource, len(basicTests.BasicTestMembers))
+	// Convert JSON members to ExampleSource
+	members := make([]fc.ExampleSource, len(basicTests.BasicTestMembers))
 	for i, member := range basicTests.BasicTestMembers {
 		members[i] = convertToWaveMember(member)
 	}
 
 	
-	params := ft.FuzzyMatcherCoreParameters[fc.WaveMembershipSource]{
+	params := ft.FuzzyMatcherCoreParameters[fc.ExampleSource]{
 		CorrectOcrMisreads: false,
 		UseExpiration:      false,
 		MaxEdits: 6,
 	}
 
-	fuzzyMatcherCore := &fmc.FuzzyMatcherCore[fc.WaveMembershipSource]{
+	fuzzyMatcherCore := &fmc.FuzzyMatcherCore[fc.ExampleSource]{
 		CoreParams: params,
 	}
 
@@ -238,13 +238,13 @@ func TestFuzzyMatcherCore_FuzzySearch_Comprehensive(t *testing.T) {
 	members := loadWaveMembersTestData(t)
 
 	// Create fuzzyMatcherCore with all test data
-	params := ft.FuzzyMatcherCoreParameters[fc.WaveMembershipSource]{
+	params := ft.FuzzyMatcherCoreParameters[fc.ExampleSource]{
 		CorrectOcrMisreads: false,
 		UseExpiration:      false,
 		MaxEdits: 6,
 	}
 
-	fuzzyMatcherCore := &fmc.FuzzyMatcherCore[fc.WaveMembershipSource]{
+	fuzzyMatcherCore := &fmc.FuzzyMatcherCore[fc.ExampleSource]{
 		CoreParams: params,
 	}
 
@@ -253,7 +253,7 @@ func TestFuzzyMatcherCore_FuzzySearch_Comprehensive(t *testing.T) {
 	// Run each test case
 	for _, testCase := range testData.TestCases {
 		t.Run(testCase.Name, func(t *testing.T) {
-			// Convert test case query to WaveMembershipSource
+			// Convert test case query to ExampleSource
 			birthdate, err := time.Parse("2006-01-02", testCase.Query.Birthdate)
 			require.NoError(t, err, "Failed to parse birthdate for test case %s", testCase.Name)
 
@@ -266,7 +266,7 @@ func TestFuzzyMatcherCore_FuzzySearch_Comprehensive(t *testing.T) {
 				eventStartUtc = time.Date(2999, 1, 1, 0, 0, 0, 0, time.UTC)
 			}
 
-			query := fc.WaveMembershipSource{
+			query := fc.ExampleSource{
 				ID:            999, // Use different ID to avoid self-match
 				Firstname:     testCase.Query.Firstname,
 				Surname:       testCase.Query.Surname,
@@ -362,19 +362,16 @@ func loadFuzzySearchTestCases(t *testing.T) FuzzySearchTestData {
 	return testData
 }
 
-func loadWaveMembersTestData(t *testing.T) []fc.WaveMembershipSource {
-	data, err := os.ReadFile("test_data/wave_members.json")
+func loadWaveMembersTestData(t *testing.T) []fc.ExampleSource {
+	data, err := os.ReadFile("test_data/example_members.json")
 	require.NoError(t, err, "Failed to read wave members test data")
 
 	var testData struct {
 		Members []struct {
 			ID             string  `json:"id"`
-			TicketQuantity string  `json:"ticket_quantity"`
 			Firstname      string  `json:"firstname"`
 			Surname        string  `json:"surname"`
 			Birthdate      string  `json:"birthdate"`
-			Tag            string  `json:"tag"`
-			DeletedAt      *string `json:"deleted_at"`
 			EventStartUtc  string  `json:"event_start_utc"`
 			EventEndUtc    string  `json:"event_end_utc"`
 		} `json:"members"`
@@ -382,30 +379,18 @@ func loadWaveMembersTestData(t *testing.T) []fc.WaveMembershipSource {
 	err = json.Unmarshal(data, &testData)
 	require.NoError(t, err, "Failed to unmarshal wave members test data")
 
-	members := make([]fc.WaveMembershipSource, len(testData.Members))
+	members := make([]fc.ExampleSource, len(testData.Members))
 	for i, tm := range testData.Members {
 		id, _ := strconv.Atoi(tm.ID)
-		ticketQty, _ := strconv.Atoi(tm.TicketQuantity)
 		birthdate, _ := time.Parse("2006-01-02", tm.Birthdate)
 		eventStart, _ := time.Parse(time.RFC3339, tm.EventStartUtc)
 		eventEnd, _ := time.Parse(time.RFC3339, tm.EventEndUtc)
 
-		var deletedAt *time.Time
-		if tm.DeletedAt != nil && *tm.DeletedAt != "" {
-			parsed, err := time.Parse(time.RFC3339, *tm.DeletedAt)
-			if err == nil {
-				deletedAt = &parsed
-			}
-		}
-
-		members[i] = fc.WaveMembershipSource{
+		members[i] = fc.ExampleSource{
 			ID:             id,
-			TicketQuantity: ticketQty,
 			Firstname:      tm.Firstname,
 			Surname:        tm.Surname,
 			Birthdate:      birthdate,
-			Tag:            tm.Tag,
-			DeletedAt:      deletedAt,
 			EventStartUtc:  eventStart,
 			EventEndUtc:    eventEnd,
 		}
@@ -420,13 +405,13 @@ func TestFuzzyMatcherCore_FuzzySearch_EdgeCases(t *testing.T) {
 	members := loadWaveMembersTestData(t)
 
 	// Create fuzzyMatcherCore with all test data
-	params := ft.FuzzyMatcherCoreParameters[fc.WaveMembershipSource]{
+	params := ft.FuzzyMatcherCoreParameters[fc.ExampleSource]{
 		CorrectOcrMisreads: false,
 		UseExpiration:      false,
 		MaxEdits: 6,
 	}
 
-	fuzzyMatcherCore := &fmc.FuzzyMatcherCore[fc.WaveMembershipSource]{
+	fuzzyMatcherCore := &fmc.FuzzyMatcherCore[fc.ExampleSource]{
 		CoreParams: params,
 	}
 
@@ -435,7 +420,7 @@ func TestFuzzyMatcherCore_FuzzySearch_EdgeCases(t *testing.T) {
 	// Run each edge case test
 	for _, testCase := range edgeCaseData.TestCases {
 		t.Run(testCase.Name, func(t *testing.T) {
-			// Convert test case query to WaveMembershipSource
+			// Convert test case query to ExampleSource
 			birthdate, err := time.Parse("2006-01-02", testCase.Query.Birthdate)
 			require.NoError(t, err, "Failed to parse birthdate for test case %s", testCase.Name)
 
@@ -448,7 +433,7 @@ func TestFuzzyMatcherCore_FuzzySearch_EdgeCases(t *testing.T) {
 				eventStartUtc = time.Date(2999, 1, 1, 0, 0, 0, 0, time.UTC)
 			}
 
-			query := fc.WaveMembershipSource{
+			query := fc.ExampleSource{
 				ID:            999,
 				Firstname:     testCase.Query.Firstname,
 				Surname:       testCase.Query.Surname,
@@ -502,13 +487,13 @@ func TestFuzzyMatcherCore_FuzzySearch_Nicknames(t *testing.T) {
 	members := loadWaveMembersTestData(t)
 
 	// Create fuzzyMatcherCore with all test data
-	params := ft.FuzzyMatcherCoreParameters[fc.WaveMembershipSource]{
+	params := ft.FuzzyMatcherCoreParameters[fc.ExampleSource]{
 		CorrectOcrMisreads: false,
 		UseExpiration:      false,
 		MaxEdits: 6,
 	}
 
-	fuzzyMatcherCore := &fmc.FuzzyMatcherCore[fc.WaveMembershipSource]{
+	fuzzyMatcherCore := &fmc.FuzzyMatcherCore[fc.ExampleSource]{
 		CoreParams: params,
 	}
 
@@ -517,11 +502,11 @@ func TestFuzzyMatcherCore_FuzzySearch_Nicknames(t *testing.T) {
 	// Run each nickname test
 	for _, testCase := range nicknameData.TestCases {
 		t.Run(testCase.Name, func(t *testing.T) {
-			// Convert test case query to WaveMembershipSource
+			// Convert test case query to ExampleSource
 			birthdate, err := time.Parse("2006-01-02", testCase.Query.Birthdate)
 			require.NoError(t, err, "Failed to parse birthdate for test case %s", testCase.Name)
 
-			query := fc.WaveMembershipSource{
+			query := fc.ExampleSource{
 				ID:            999,
 				Firstname:     testCase.Query.Firstname,
 				Surname:       testCase.Query.Surname,
@@ -596,18 +581,18 @@ func TestFuzzyMatcherCore_FuzzySearch_Legacy(t *testing.T) {
 	basicTests := loadBasicTestData(t)
 
 	// Use only the first member for legacy test
-	members := []fc.WaveMembershipSource{
+	members := []fc.ExampleSource{
 		convertToWaveMember(basicTests.BasicTestMembers[0]),
 	}
 
 	
-	params := ft.FuzzyMatcherCoreParameters[fc.WaveMembershipSource]{
+	params := ft.FuzzyMatcherCoreParameters[fc.ExampleSource]{
 		CorrectOcrMisreads: false,
 		UseExpiration:      false,
 		MaxEdits: 6,
 	}
 
-	fuzzyMatcherCore := &fmc.FuzzyMatcherCore[fc.WaveMembershipSource]{
+	fuzzyMatcherCore := &fmc.FuzzyMatcherCore[fc.ExampleSource]{
 		CoreParams: params,
 	}
 	
@@ -635,13 +620,13 @@ func TestFuzzyMatcherCore_EmptySearch(t *testing.T) {
 	basicTests := loadBasicTestData(t)
 
 	// Test search on empty fuzzyMatcherCore
-	params := ft.FuzzyMatcherCoreParameters[fc.WaveMembershipSource]{
+	params := ft.FuzzyMatcherCoreParameters[fc.ExampleSource]{
 		CorrectOcrMisreads: false,
 		UseExpiration:      false,
 		MaxEdits: 6,
 	}
 
-	fuzzyMatcherCore := &fmc.FuzzyMatcherCore[fc.WaveMembershipSource]{
+	fuzzyMatcherCore := &fmc.FuzzyMatcherCore[fc.ExampleSource]{
 		Root: &ft.FuzzyMatcherNode{
 			Children: make(map[rune]*ft.FuzzyMatcherNode),
 		},
@@ -729,7 +714,7 @@ func TestFuzzyMatcherParameters_Validation(t *testing.T) {
 }
 
 func BenchmarkFuzzyMatcherCore_CalculateSimilarity_JaroWinkler(b *testing.B) {
-	fuzzyMatcherCore := &fmc.FuzzyMatcherCore[fc.WaveMembershipSource]{}
+	fuzzyMatcherCore := &fmc.FuzzyMatcherCore[fc.ExampleSource]{}
 	s1 := "john"
 	s2 := "jon"
 
@@ -740,7 +725,7 @@ func BenchmarkFuzzyMatcherCore_CalculateSimilarity_JaroWinkler(b *testing.B) {
 }
 
 func BenchmarkFuzzyMatcherCore_CalculateSimilarity_Levenshtein(b *testing.B) {
-	fuzzyMatcherCore := &fmc.FuzzyMatcherCore[fc.WaveMembershipSource]{}
+	fuzzyMatcherCore := &fmc.FuzzyMatcherCore[fc.ExampleSource]{}
 	s1 := "hello"
 	s2 := "hallo"
 

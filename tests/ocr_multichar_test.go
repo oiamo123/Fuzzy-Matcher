@@ -57,18 +57,18 @@ func TestMultiCharOCRReplacements(t *testing.T) {
 // Helper function to test "rn" -> "m" replacements specifically
 func testRnToMReplacement(t *testing.T, searchTerm, targetTerm string, expectedEdits int) {
 	// Create fuzzy matcher core with OCR corrections enabled
-	params := ft.FuzzyMatcherCoreParameters[fc.WaveMembershipSource]{
+	params := ft.FuzzyMatcherCoreParameters[fc.ExampleSource]{
 		CorrectOcrMisreads: true,
 		UseExpiration:      false,
 		MaxEdits: 10,
 	}
 
-	fuzzyCore := &fmc.FuzzyMatcherCore[fc.WaveMembershipSource]{
+	fuzzyCore := &fmc.FuzzyMatcherCore[fc.ExampleSource]{
 		CoreParams: params,
 	}
 
 	// Create test data with the target term
-	testMember := fc.WaveMembershipSource{
+	testMember := fc.ExampleSource{
 		ID:            1,
 		Firstname:     targetTerm,
 		Surname:       "Test",
@@ -78,10 +78,10 @@ func testRnToMReplacement(t *testing.T, searchTerm, targetTerm string, expectedE
 	}
 
 	// Build the trie with test data
-	fuzzyCore.Build([]fc.WaveMembershipSource{testMember})
+	fuzzyCore.Build([]fc.ExampleSource{testMember})
 
 	// Create search entry with OCR errors
-	searchMember := fc.WaveMembershipSource{
+	searchMember := fc.ExampleSource{
 		ID:            999,
 		Firstname:     searchTerm,
 		Surname:       "Test",
@@ -121,18 +121,18 @@ func testRnToMReplacement(t *testing.T, searchTerm, targetTerm string, expectedE
 // Helper function to test general multi-character replacements
 func testMultiCharReplacement(t *testing.T, searchTerm, targetTerm, multiChar, replacement string, expectedReplacements int) {
 	// Create fuzzy matcher core with OCR corrections enabled
-	params := ft.FuzzyMatcherCoreParameters[fc.WaveMembershipSource]{
+	params := ft.FuzzyMatcherCoreParameters[fc.ExampleSource]{
 		CorrectOcrMisreads: true,
 		UseExpiration:      false,
 		MaxEdits: 6,
 	}
 	
-	fuzzyCore := &fmc.FuzzyMatcherCore[fc.WaveMembershipSource]{
+	fuzzyCore := &fmc.FuzzyMatcherCore[fc.ExampleSource]{
 		CoreParams: params,
 	}
 
 	// Create test data
-	testMember := fc.WaveMembershipSource{
+	testMember := fc.ExampleSource{
 		ID:            1,
 		Firstname:     targetTerm,
 		Surname:       "Test",
@@ -142,10 +142,10 @@ func testMultiCharReplacement(t *testing.T, searchTerm, targetTerm, multiChar, r
 	}
 
 	// Build the trie
-	fuzzyCore.Build([]fc.WaveMembershipSource{testMember})
+	fuzzyCore.Build([]fc.ExampleSource{testMember})
 
 	// Create search entry
-	searchMember := fc.WaveMembershipSource{
+	searchMember := fc.ExampleSource{
 		ID:            999,
 		Firstname:     searchTerm,
 		Surname:       "Test",
@@ -182,18 +182,18 @@ func testMultiCharReplacement(t *testing.T, searchTerm, targetTerm, multiChar, r
 // Helper function to test mixed OCR errors (both single and multi-character)
 func testMixedOCRReplacement(t *testing.T, searchTerm, targetTerm string, expectedTotalEdits int) {
 	// Create fuzzy matcher core with OCR corrections enabled
-	params := ft.FuzzyMatcherCoreParameters[fc.WaveMembershipSource]{
+	params := ft.FuzzyMatcherCoreParameters[fc.ExampleSource]{
 		CorrectOcrMisreads: true,
 		UseExpiration:      false,
 		MaxEdits: 6,
 	}
 
-	fuzzyCore := &fmc.FuzzyMatcherCore[fc.WaveMembershipSource]{
+	fuzzyCore := &fmc.FuzzyMatcherCore[fc.ExampleSource]{
 		CoreParams: params,
 	}
 
 	// Create test data
-	testMember := fc.WaveMembershipSource{
+	testMember := fc.ExampleSource{
 		ID:            1,
 		Firstname:     targetTerm,
 		Surname:       "Test",
@@ -203,10 +203,10 @@ func testMixedOCRReplacement(t *testing.T, searchTerm, targetTerm string, expect
 	}
 
 	// Build the trie
-	fuzzyCore.Build([]fc.WaveMembershipSource{testMember})
+	fuzzyCore.Build([]fc.ExampleSource{testMember})
 
 	// Create search entry
-	searchMember := fc.WaveMembershipSource{
+	searchMember := fc.ExampleSource{
 		ID:            999,
 		Firstname:     searchTerm,
 		Surname:       "Test",
@@ -251,18 +251,18 @@ func BenchmarkOCREfficiency(b *testing.B) {
 
 func benchmarkOCRSearch(b *testing.B, useOCR bool, searchTerm, targetTerm string) {
 	// Create fuzzy matcher core
-	params := ft.FuzzyMatcherCoreParameters[fc.WaveMembershipSource]{
+	params := ft.FuzzyMatcherCoreParameters[fc.ExampleSource]{
 		CorrectOcrMisreads: useOCR,
 		UseExpiration:      false,
 		MaxEdits: 10,
 	}
 
-	fuzzyCore := &fmc.FuzzyMatcherCore[fc.WaveMembershipSource]{
+	fuzzyCore := &fmc.FuzzyMatcherCore[fc.ExampleSource]{
 		CoreParams: params,
 	}
 
 	// Create test data
-	testMember := fc.WaveMembershipSource{
+	testMember := fc.ExampleSource{
 		ID:            1,
 		Firstname:     targetTerm,
 		Surname:       "Test",
@@ -272,10 +272,10 @@ func benchmarkOCRSearch(b *testing.B, useOCR bool, searchTerm, targetTerm string
 	}
 
 	// Build the trie
-	fuzzyCore.Build([]fc.WaveMembershipSource{testMember})
+	fuzzyCore.Build([]fc.ExampleSource{testMember})
 
 	// Create search entry
-	searchMember := fc.WaveMembershipSource{
+	searchMember := fc.ExampleSource{
 		ID:            999,
 		Firstname:     searchTerm,
 		Surname:       "Test",

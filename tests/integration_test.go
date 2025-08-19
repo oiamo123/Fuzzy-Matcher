@@ -12,41 +12,35 @@ import (
 
 func TestFuzzyMatcher_Integration(t *testing.T) {
 	// Create fuzzy matcher (Client not needed for local testing)
-	matcher := &fm.FuzzyMatcher[fc.WaveMembershipSource]{}
-	matcher.Init(&ft.FuzzyMatcherCoreParameters[fc.WaveMembershipSource]{
+	matcher := &fm.FuzzyMatcher[fc.ExampleSource]{}
+	matcher.Init(&ft.FuzzyMatcherCoreParameters[fc.ExampleSource]{
 		CorrectOcrMisreads: false,
 		UseExpiration:      false,
 		MaxEdits:           6,
 	})
 
 	// Create test data
-	testMembers := []fc.WaveMembershipSource{
+	testMembers := []fc.ExampleSource{
 		{
 			ID:             1,
-			TicketQuantity: 2,
 			Firstname:      "John",
 			Surname:        "Smith",
 			Birthdate:      time.Date(1990, 5, 15, 0, 0, 0, 0, time.UTC),
-			Tag:            "VIP",
-			DeletedAt:      nil,
 			EventStartUtc:  time.Date(2025, 8, 20, 18, 0, 0, 0, time.UTC),
 			EventEndUtc:    time.Date(2025, 8, 20, 23, 0, 0, 0, time.UTC),
 		},
 		{
 			ID:             2,
-			TicketQuantity: 1,
 			Firstname:      "Sarah",
 			Surname:        "Johnson",
 			Birthdate:      time.Date(1985, 12, 3, 0, 0, 0, 0, time.UTC),
-			Tag:            "GENERAL",
-			DeletedAt:      nil,
 			EventStartUtc:  time.Date(2025, 8, 20, 18, 0, 0, 0, time.UTC),
 			EventEndUtc:    time.Date(2025, 8, 20, 23, 0, 0, 0, time.UTC),
 		},
 	}
 
 	// Build fuzzyMatcherCore manually for testing (bypassing Init/Sync which requires network)
-	fuzzyMatcherCore := &fmc.FuzzyMatcherCore[fc.WaveMembershipSource]{
+	fuzzyMatcherCore := &fmc.FuzzyMatcherCore[fc.ExampleSource]{
 		Root: &ft.FuzzyMatcherNode{
 			Children: make(map[rune]*ft.FuzzyMatcherNode),
 		},
@@ -56,7 +50,7 @@ func TestFuzzyMatcher_Integration(t *testing.T) {
 
 	// Test exact match using the fuzzyMatcherCore directly
 	t.Run("ExactMatch", func(t *testing.T) {
-		query := fc.WaveMembershipSource{
+		query := fc.ExampleSource{
 			ID:        999, // Different ID to avoid self-match
 			Firstname: "John",
 			Surname:   "Smith",
@@ -89,7 +83,7 @@ func TestFuzzyMatcher_Integration(t *testing.T) {
 
 	// Test fuzzy match
 	t.Run("FuzzyMatch", func(t *testing.T) {
-		query := fc.WaveMembershipSource{
+		query := fc.ExampleSource{
 			ID:        999,
 			Firstname: "Jon",   // Missing 'h'
 			Surname:   "Smyth", // 'y' instead of 'i'
@@ -119,7 +113,7 @@ func TestFuzzyMatcher_Integration(t *testing.T) {
 
 	// Test no match
 	t.Run("NoMatch", func(t *testing.T) {
-		query := fc.WaveMembershipSource{
+		query := fc.ExampleSource{
 			ID:        999,
 			Firstname: "Nonexistent",
 			Surname:   "Person",
@@ -139,7 +133,7 @@ func TestFuzzyMatcher_Integration(t *testing.T) {
 
 func TestTypedFieldsSafety(t *testing.T) {
 	// Test that typed fields prevent common errors
-	member := fc.WaveMembershipSource{
+	member := fc.ExampleSource{
 		Firstname: "Test",
 		Surname:   "User",
 		Birthdate: time.Now(),
@@ -172,7 +166,7 @@ func TestTypedFieldsSafety(t *testing.T) {
 }
 
 func TestFieldParameterConsistency(t *testing.T) {
-	member := fc.WaveMembershipSource{}
+	member := fc.ExampleSource{}
 	params := member.GetSearchParameters()
 
 	// Test that weights sum to 1.0

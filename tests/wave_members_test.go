@@ -22,71 +22,56 @@ type TestData struct {
 
 type TestMember struct {
 	ID             string  `json:"id"`
-	TicketQuantity string  `json:"ticket_quantity"`
 	Firstname      string  `json:"firstname"`
 	Surname        string  `json:"surname"`
 	Birthdate      string  `json:"birthdate"`
-	Tag            string  `json:"tag"`
-	DeletedAt      *string `json:"deleted_at"`
 	EventStartUtc  string  `json:"event_start_utc"`
 	EventEndUtc    string  `json:"event_end_utc"`
 }
 
-// Convert test member to WaveMembershipSource
-func (tm TestMember) ToWaveMembershipSource() fc.WaveMembershipSource {
+// Convert test member to ExampleSource
+func (tm TestMember) ToExampleSource() fc.ExampleSource {
 	id, _ := strconv.Atoi(tm.ID)
-	ticketQty, _ := strconv.Atoi(tm.TicketQuantity)
 	birthdate, _ := time.Parse("2006-01-02", tm.Birthdate)
 	eventStart, _ := time.Parse(time.RFC3339, tm.EventStartUtc)
 	eventEnd, _ := time.Parse(time.RFC3339, tm.EventEndUtc)
 
-	var deletedAt *time.Time
-	if tm.DeletedAt != nil && *tm.DeletedAt != "" {
-		parsed, err := time.Parse(time.RFC3339, *tm.DeletedAt)
-		if err == nil {
-			deletedAt = &parsed
-		}
-	}
-
-	return fc.WaveMembershipSource{
+	return fc.ExampleSource{
 		ID:             id,
-		TicketQuantity: ticketQty,
 		Firstname:      tm.Firstname,
 		Surname:        tm.Surname,
 		Birthdate:      birthdate,
-		Tag:            tm.Tag,
-		DeletedAt:      deletedAt,
 		EventStartUtc:  eventStart,
 		EventEndUtc:    eventEnd,
 	}
 }
 
 // loadTestData loads wave members from the JSON test file
-func loadTestData(t *testing.T) []fc.WaveMembershipSource {
-	data, err := os.ReadFile("test_data/wave_members.json")
+func loadTestData(t *testing.T) []fc.ExampleSource {
+	data, err := os.ReadFile("test_data/example_members.json")
 	require.NoError(t, err, "Failed to read test data file")
 
 	var testData TestData
 	err = json.Unmarshal(data, &testData)
 	require.NoError(t, err, "Failed to unmarshal test data")
 
-	members := make([]fc.WaveMembershipSource, len(testData.Members))
+	members := make([]fc.ExampleSource, len(testData.Members))
 	for i, tm := range testData.Members {
-		members[i] = tm.ToWaveMembershipSource()
+		members[i] = tm.ToExampleSource()
 	}
 
 	return members
 }
 
 // createMockFuzzyMatcherCore creates a fuzzyMatcherCore populated with test data
-func createMockFuzzyMatcherCore(t *testing.T, members []fc.WaveMembershipSource) *fmc.FuzzyMatcherCore[fc.WaveMembershipSource] {
-	params := ft.FuzzyMatcherCoreParameters[fc.WaveMembershipSource]{
+func createMockFuzzyMatcherCore(t *testing.T, members []fc.ExampleSource) *fmc.FuzzyMatcherCore[fc.ExampleSource] {
+	params := ft.FuzzyMatcherCoreParameters[fc.ExampleSource]{
 		CorrectOcrMisreads: false,
 		UseExpiration:      false,
 		MaxEdits: 6,
 	}
 
-	fuzzyMatcherCore := &fmc.FuzzyMatcherCore[fc.WaveMembershipSource]{
+	fuzzyMatcherCore := &fmc.FuzzyMatcherCore[fc.ExampleSource]{
 		CoreParams: params,
 	}
 
@@ -94,14 +79,13 @@ func createMockFuzzyMatcherCore(t *testing.T, members []fc.WaveMembershipSource)
 	return fuzzyMatcherCore
 }
 
-func TestWaveMembershipSource_CreateFuzzyEntry(t *testing.T) {
-	member := fc.WaveMembershipSource{
+func TestExampleSource_CreateFuzzyEntry(t *testing.T) {
+	member := fc.ExampleSource{
 		ID:          123,
 		Firstname:   "John",
 		Surname:     "Smith",
 		Birthdate:   time.Date(1990, 5, 15, 0, 0, 0, 0, time.UTC),
 		EventEndUtc: time.Date(2025, 8, 20, 23, 0, 0, 0, time.UTC),
-		DeletedAt:   nil,
 	}
 
 	entry := member.CreateFuzzyEntry()
@@ -125,66 +109,49 @@ func TestWaveMembershipSource_CreateFuzzyEntry(t *testing.T) {
 	}
 }
 
-func TestWaveMembershipSource_CreateFuzzyEntry_DeletedMember(t *testing.T) {
-	deletedTime := time.Now()
-	member := fc.WaveMembershipSource{
-		ID:        123,
-		Firstname: "John",
-		Surname:   "Smith",
-		DeletedAt: &deletedTime,
-	}
-
-	entry := member.CreateFuzzyEntry()
-	assert.Nil(t, entry, "CreateFuzzyEntry should return nil for deleted members")
-}
-
-func TestWaveMembershipSource_ValidateEntry(t *testing.T) {
+func TestExampleSource_ValidateEntry(t *testing.T) {
 	tests := []struct {
 		name     string
-		member   fc.WaveMembershipSource
+		member   fc.ExampleSource
 		expected bool
 	}{
 		{
 			name: "Valid member",
-			member: fc.WaveMembershipSource{
+			member: fc.ExampleSource{
 				Firstname:     "John",
 				Surname:       "Smith",
 				Birthdate:     time.Date(1990, 5, 15, 0, 0, 0, 0, time.UTC),
 				EventStartUtc: time.Now().Add(24 * time.Hour), // Future event
-				DeletedAt:     nil,
 			},
 			expected: true,
 		},
 		{
 			name: "Empty firstname",
-			member: fc.WaveMembershipSource{
+			member: fc.ExampleSource{
 				Firstname:     "",
 				Surname:       "Smith",
 				Birthdate:     time.Date(1990, 5, 15, 0, 0, 0, 0, time.UTC),
 				EventStartUtc: time.Now().Add(24 * time.Hour),
-				DeletedAt:     nil,
 			},
 			expected: false,
 		},
 		{
 			name: "Empty surname",
-			member: fc.WaveMembershipSource{
+			member: fc.ExampleSource{
 				Firstname:     "John",
 				Surname:       "",
 				Birthdate:     time.Date(1990, 5, 15, 0, 0, 0, 0, time.UTC),
 				EventStartUtc: time.Now().Add(24 * time.Hour),
-				DeletedAt:     nil,
 			},
 			expected: false,
 		},
 		{
 			name: "Short names (average length <= 3)",
-			member: fc.WaveMembershipSource{
+			member: fc.ExampleSource{
 				Firstname:     "Jo",
 				Surname:       "Li",
 				Birthdate:     time.Date(1990, 5, 15, 0, 0, 0, 0, time.UTC),
 				EventStartUtc: time.Now().Add(24 * time.Hour),
-				DeletedAt:     nil,
 			},
 			expected: false,
 		},
@@ -198,8 +165,8 @@ func TestWaveMembershipSource_ValidateEntry(t *testing.T) {
 	}
 }
 
-func TestWaveMembershipSource_GetSearchParameters(t *testing.T) {
-	member := fc.WaveMembershipSource{}
+func TestExampleSource_GetSearchParameters(t *testing.T) {
+	member := fc.ExampleSource{}
 	params := member.GetSearchParameters()
 
 	// Test field configuration existence
@@ -256,7 +223,7 @@ type ShortNameValidationTestData struct {
 	TestCases []ShortNameValidationTestCase `json:"test_cases"`
 }
 
-func TestWaveMembershipSource_GetSearchParameters_ShortNameValidation(t *testing.T) {
+func TestExampleSource_GetSearchParameters_ShortNameValidation(t *testing.T) {
 	// Load test data from JSON
 	data, err := os.ReadFile("test_data/short_name_validation_tests.json")
 	require.NoError(t, err, "Failed to read test data file")
@@ -275,12 +242,11 @@ func TestWaveMembershipSource_GetSearchParameters_ShortNameValidation(t *testing
 			require.NoError(t, err, "Failed to parse event start UTC")
 
 			// Create member from test data
-			member := fc.WaveMembershipSource{
+			member := fc.ExampleSource{
 				Firstname:     tt.Member.Firstname,
 				Surname:       tt.Member.Surname,
 				Birthdate:     birthdate,
 				EventStartUtc: eventStartUtc,
-				DeletedAt:     nil,
 			}
 
 			params := member.GetSearchParameters()
@@ -342,7 +308,7 @@ func TestFuzzyMatcher_ExactMatch(t *testing.T) {
 	fuzzyMatcherCore := createMockFuzzyMatcherCore(t, members)
 
 	// Test exact match for John Smith
-	query := fc.WaveMembershipSource{
+	query := fc.ExampleSource{
 		ID:        999, // Different ID to avoid self-match
 		Firstname: "John",
 		Surname:   "Smith",
@@ -375,7 +341,7 @@ func TestFuzzyMatcher_FuzzyMatch(t *testing.T) {
 	fuzzyMatcherCore := createMockFuzzyMatcherCore(t, members)
 
 	// Test fuzzy match with typos
-	query := fc.WaveMembershipSource{
+	query := fc.ExampleSource{
 		ID:        999,
 		Firstname: "Jon",   // Typo: missing 'h' (JaroWinkler: 0.933 > 0.7 threshold)
 		Surname:   "Smith", // Exact match to ensure it passes surname threshold
@@ -409,7 +375,7 @@ func TestFuzzyMatcher_NoMatch(t *testing.T) {
 	fuzzyMatcherCore := createMockFuzzyMatcherCore(t, members)
 
 	// Test with completely different name
-	query := fc.WaveMembershipSource{
+	query := fc.ExampleSource{
 		ID:        999,
 		Firstname: "Xyz",
 		Surname:   "Nonexistent",
@@ -426,7 +392,7 @@ func TestFuzzyMatcher_PartialMatch(t *testing.T) {
 	fuzzyMatcherCore := createMockFuzzyMatcherCore(t, members)
 
 	// Test with matching name but different birthdate
-	query := fc.WaveMembershipSource{
+	query := fc.ExampleSource{
 		ID:        999,
 		Firstname: "John",
 		Surname:   "Smith",
@@ -450,7 +416,7 @@ func TestFuzzyMatcher_PartialMatch(t *testing.T) {
 
 func TestTypedFields_CompileSafety(t *testing.T) {
 	// This test ensures typed fields are working correctly
-	member := fc.WaveMembershipSource{
+	member := fc.ExampleSource{
 		Firstname: "Test",
 		Surname:   "User",
 		Birthdate: time.Now(),
@@ -474,7 +440,7 @@ func TestTypedFields_CompileSafety(t *testing.T) {
 
 func TestFuzzyEntry_Expiry(t *testing.T) {
 	eventEnd := time.Date(2025, 8, 20, 23, 0, 0, 0, time.UTC)
-	member := fc.WaveMembershipSource{
+	member := fc.ExampleSource{
 		ID:          123,
 		Firstname:   "John",
 		Surname:     "Smith",
@@ -489,8 +455,8 @@ func TestFuzzyEntry_Expiry(t *testing.T) {
 	assert.Equal(t, expectedExpiry, entry.Expiry, "Expiry should be 12 hours after event end")
 }
 
-func BenchmarkWaveMembershipSource_CreateFuzzyEntry(b *testing.B) {
-	member := fc.WaveMembershipSource{
+func BenchmarkExampleSource_CreateFuzzyEntry(b *testing.B) {
+	member := fc.ExampleSource{
 		ID:        123,
 		Firstname: "John",
 		Surname:   "Smith",
@@ -506,18 +472,18 @@ func BenchmarkWaveMembershipSource_CreateFuzzyEntry(b *testing.B) {
 
 func BenchmarkFuzzyMatcher_Search(b *testing.B) {
 	// Load test data once
-	data, _ := os.ReadFile("test_data/wave_members.json")
+	data, _ := os.ReadFile("test_data/example_members.json")
 	var testData TestData
 	json.Unmarshal(data, &testData)
 
-	members := make([]fc.WaveMembershipSource, len(testData.Members))
+	members := make([]fc.ExampleSource, len(testData.Members))
 	for i, tm := range testData.Members {
-		members[i] = tm.ToWaveMembershipSource()
+		members[i] = tm.ToExampleSource()
 	}
 
 	fuzzyMatcherCore := createMockFuzzyMatcherCore(nil, members)
 
-	query := fc.WaveMembershipSource{
+	query := fc.ExampleSource{
 		ID:        999,
 		Firstname: "John",
 		Surname:   "Smith",
