@@ -2,7 +2,6 @@ package fuzzymatchercore
 
 import (
 	"container/heap"
-	"fmt"
 	"strings"
 
 	ft "github.com/oiamo123/fuzzy_matcher/fuzzy_types"
@@ -154,14 +153,6 @@ func (fmc *FuzzyMatcherCore[T]) BreadthFirstSearch(params ft.RecurseParameters) 
 
 		// 4.2
 		match, ok := fmc.ProcessNode(&nodePriority.Params)
-		// fmt.Printf("BFS Path: %s, Num Edits: %d, Depth: %d, Char: %c Word: %s, Ok: %v\n", 
-		// 	string(nodePriority.Params.Path), 
-		// 	nodePriority.Params.NumEdits, 
-		// 	nodePriority.Params.Depth, 
-		// 	node.Char, 
-		// 	string(nodePriority.Params.Word), 
-		// 	ok,
-		// )
 
 		matches = append(matches, match...)
 
@@ -239,8 +230,6 @@ func (fmc *FuzzyMatcherCore[T]) Recurse(params ft.RecurseParameters) []ft.MatchC
 	}
 
 	char := params.Word[params.Index]
-
-	fmt.Printf("Recurse Path: %s, Num Edits: %d, Depth: %d\n", string(params.Path), params.NumEdits, params.Depth)
 
 	// 2.
 	if params.Node.Children[char] != nil {

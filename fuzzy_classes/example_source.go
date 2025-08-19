@@ -1,4 +1,4 @@
-package fuzzymatcherclasses
+package fuzzyclasses
 
 import (
 	"strings"
@@ -7,21 +7,18 @@ import (
 	ft "github.com/oiamo123/fuzzy_matcher/fuzzy_types"
 )
 
-type WaveMembershipSource struct {
+type ExampleSource struct {
 	ID             int        `json:"id"`
-	TicketQuantity int        `json:"ticket_quantity"`
 	Firstname      string     `json:"firstname"`
 	Surname        string     `json:"surname"`
 	Birthdate      time.Time  `json:"birthdate"`
-	Tag            string     `json:"tag"`
-	DeletedAt      *time.Time `json:"deleted_at"`
-	EventStartUtc  time.Time  `json:"event_start_utc"`
-	EventEndUtc    time.Time  `json:"event_end_utc"`
+	EventStartUtc  time.Time  `json:"event_start_utc"` // for example
+	EventEndUtc    time.Time  `json:"event_end_utc"` // for example
 }
 
 // Defines the number of edits and search depth allowed for each field
-func (w WaveMembershipSource) GetSearchParameters() ft.FuzzyMatcherParameters {
-	isValid := w.ValidateEntry()
+func (s ExampleSource) GetSearchParameters() ft.FuzzyMatcherParameters {
+	isValid := s.ValidateEntry()
 
 	var maxDepth map[ft.Field]int
 	var maxEdits map[ft.Field]int
@@ -84,10 +81,10 @@ func (w WaveMembershipSource) GetSearchParameters() ft.FuzzyMatcherParameters {
 }
 
 // Validates the entry by checking if the required fields are present and have valid values
-func (w WaveMembershipSource) ValidateEntry() bool {
-	firstName := strings.ToLower(strings.TrimSpace(w.Firstname))
-	surname := strings.ToLower(strings.TrimSpace(w.Surname))
-	birthdate := w.Birthdate.Format("20060102")
+func (s ExampleSource) ValidateEntry() bool {
+	firstName := strings.ToLower(strings.TrimSpace(s.Firstname))
+	surname := strings.ToLower(strings.TrimSpace(s.Surname))
+	birthdate := s.Birthdate.Format("20060102")
 
 	if firstName == "" || surname == "" || birthdate == "" {
 		return false
@@ -103,16 +100,12 @@ func (w WaveMembershipSource) ValidateEntry() bool {
 	return true
 }
 
-// converts the WaveMembershipSource to a FuzzyEntry
-func (w WaveMembershipSource) CreateFuzzyEntry() *ft.FuzzyEntry {
+// converts the ExampleSource to a FuzzyEntry
+func (s ExampleSource) CreateFuzzyEntry() *ft.FuzzyEntry {
 	// Formats the string to be used for fuzzy matching
-	if w.DeletedAt != nil {
-		return nil
-	}
-
-	firstName := strings.ToLower(strings.TrimSpace(w.Firstname))
-	surname := strings.ToLower(strings.TrimSpace(w.Surname))
-	birthdate := w.Birthdate.Format("20060102")
+	firstName := strings.ToLower(strings.TrimSpace(s.Firstname))
+	surname := strings.ToLower(strings.TrimSpace(s.Surname))
+	birthdate := s.Birthdate.Format("20060102")
 
 	key := make(map[ft.Field]string)
 	key[ft.Firstname] = firstName
@@ -121,7 +114,7 @@ func (w WaveMembershipSource) CreateFuzzyEntry() *ft.FuzzyEntry {
 
 	return &ft.FuzzyEntry{
 		Key:    key,
-		ID:     w.ID,
-		Expiry: w.EventEndUtc.Add(12 * time.Hour), // Set expiry to 12 hours after the event end time
+		ID:     s.ID,
+		Expiry: s.EventEndUtc.Add(12 * time.Hour), // Set expiry to 12 hours after the event end time
 	}
 }

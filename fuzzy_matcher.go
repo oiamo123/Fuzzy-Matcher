@@ -9,7 +9,7 @@ import (
 
 // FuzzyMatcher is a generic structure that holds the fuzzy matcher core and other configurations for fuzzy matching
 type FuzzyMatcher[T ft.FuzzyMatcherDataSource] struct {
-	FuzzyMatcherCore   *fmcore.FuzzyMatcherCore[T]
+	FuzzyMatcherCore *fmcore.FuzzyMatcherCore[T]
 }
 
 func (fuzzyMatcher *FuzzyMatcher[T]) Init(params *ft.FuzzyMatcherCoreParameters[T]) {
@@ -41,12 +41,26 @@ func (fuzzyMatcher *FuzzyMatcher[T]) InsertEntries(entries []T) error {
 
 func (fuzzyMatcher *FuzzyMatcher[T]) Search(entry T) (bool, []ft.FuzzyMatch[T]) {
 	// Verify fuzzyMatcherCore is initialized
-	if fuzzyMatcher.FuzzyMatcherCore == nil {
-		return false, nil
+	if fuzzyMatcher.FuzzyMatcherCore == nil {return false, nil
 	}
 
 	fuzzyMatcher.FuzzyMatcherCore.Clean()
 
 	// Even if sync fails, we can still search with the existing data
 	return fuzzyMatcher.FuzzyMatcherCore.SearchFuzzy(entry)
+}
+
+func (fuzzyMatcher *FuzzyMatcher[T]) Sync(entries []T) error {
+	if fuzzyMatcher.FuzzyMatcherCore == nil {
+		return fmt.Errorf("FuzzyMatcherCore is not initialized")
+	}
+
+	// Reset the core
+	fuzzyMatcher.FuzzyMatcherCore.Reset()
+
+	// Add new entries
+	// Will build with already existing params
+	fuzzyMatcher.FuzzyMatcherCore.Build(entries)
+
+	return nil
 }
