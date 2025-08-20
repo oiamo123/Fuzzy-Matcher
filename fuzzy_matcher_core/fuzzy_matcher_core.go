@@ -153,6 +153,7 @@ func (fmc *FuzzyMatcherCore[T]) SearchFuzzy(entry ft.FuzzyMatcherDataSource) (bo
 				EditableFields: editableFields,
 				Visited: make(map[ft.VisitKey]struct{}),
 				CalculationMethod: parameters.CalculationMethods[key],
+				MinDistance:       parameters.MinDistances[key],
 			}
 
 			matches := fmc.Recurse(recurseParameters)

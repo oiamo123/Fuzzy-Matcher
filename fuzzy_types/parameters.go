@@ -15,6 +15,7 @@ type RecurseParameters struct {
     EditableFields    []bool
     Visited           map[VisitKey]struct{}
     CalculationMethod CalculationMethod
+    MinDistance       float64
 }
 
 func (rp *RecurseParameters) Clone() RecurseParameters {
@@ -37,5 +38,7 @@ func (rp *RecurseParameters) Clone() RecurseParameters {
         NumEditsIncrement: rp.NumEditsIncrement,
         EditableFields:    rp.EditableFields,
         Visited:           newVisited,
+        CalculationMethod: rp.CalculationMethod,
+		MinDistance:       rp.MinDistance,
     }
 }

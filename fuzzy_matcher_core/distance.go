@@ -19,7 +19,7 @@ func maxInt(a, b int) int {
 func (fmc *FuzzyMatcherCore[T]) CalculateSimilarity(s1, s2 string, distanceMethod ft.CalculationMethod) float64 {
 	switch distanceMethod {
 	case ft.JaroWinkler:
-		return matchr.JaroWinkler(s1, s2, false)
+		return matchr.JaroWinkler(s1, s2, true)
 
 	case ft.Levenshtein:
 		maxLen := maxInt(len(s1), len(s2))
