@@ -1,0 +1,165 @@
+{
+  "testMembers": [
+    {
+      "id": 1,
+      "ticketQuantity": 2,
+      "firstname": "John",
+      "surname": "Smith",
+      "birthdate": "1990-05-15T00:00:00Z",
+      "tag": "VIP",
+      "deletedAt": "0001-01-01T00:00:00Z",
+      "eventStartUtc": "2025-08-20T18:00:00Z",
+      "eventEndUtc": "2025-08-20T23:00:00Z"
+    },
+    {
+      "id": 2,
+      "ticketQuantity": 1,
+      "firstname": "John",
+      "surname": "Williams",
+      "birthdate": "1985-12-03T00:00:00Z",
+      "tag": "GENERAL",
+      "deletedAt": "0001-01-01T00:00:00Z",
+      "eventStartUtc": "2025-08-20T18:00:00Z",
+      "eventEndUtc": "2025-08-20T23:00:00Z"
+    }
+  ],
+  "testCases": [
+    {
+      "name": "InitialState_BothEntriesExist",
+      "description": "Verify both John Smith and John Williams can be found initially",
+      "queries": [
+        {
+          "description": "Find John Smith with exact match",
+          "queryMember": {
+            "id": 999,
+            "firstname": "John",
+            "surname": "Smith",
+            "birthdate": "1990-05-15T00:00:00Z"
+          },
+          "expectedCount": "one",
+          "expectedIds": [1],
+          "requireScore": true
+        },
+        {
+          "description": "Find John Williams with exact match",
+          "queryMember": {
+            "id": 999,
+            "firstname": "John",
+            "surname": "Williams",
+            "birthdate": "1985-12-03T00:00:00Z"
+          },
+          "expectedCount": "one",
+          "expectedIds": [2],
+          "requireScore": true
+        }
+      ]
+    },
+    {
+      "name": "RemoveEntry_JohnSmithRemoved",
+      "description": "Remove John Smith and verify he cannot be found",
+      "removalOp": {
+        "description": "Remove John Smith by ID",
+        "removeIds": [1]
+      },
+      "queries": [
+        {
+          "description": "Search for John Smith should not find him",
+          "queryMember": {
+            "id": 999,
+            "firstname": "John",
+            "surname": "Smith",
+            "birthdate": "1990-05-15T00:00:00Z"
+          },
+          "expectedCount": "zero",
+          "shouldNotFind": [1]
+        }
+      ]
+    },
+    {
+      "name": "VerifyOtherEntry_JohnWilliamsStillExists",
+      "description": "Verify John Williams still exists after John Smith removal",
+      "queries": [
+        {
+          "description": "Find John Williams should still work",
+          "queryMember": {
+            "id": 999,
+            "firstname": "John",
+            "surname": "Williams",
+            "birthdate": "1985-12-03T00:00:00Z"
+          },
+          "expectedCount": "one",
+          "expectedIds": [2],
+          "requireScore": true,
+          "minScore": 0.8
+        }
+      ]
+    },
+    {
+      "name": "FuzzySearch_AfterRemoval",
+      "description": "Test fuzzy searches after John Smith removal",
+      "queries": [
+        {
+          "description": "Fuzzy search for removed John Smith should not find him",
+          "queryMember": {
+            "id": 999,
+            "firstname": "Jon",
+            "surname": "Smyth",
+            "birthdate": "1990-05-15T00:00:00Z"
+          },
+          "expectedCount": "zero",
+          "shouldNotFind": [1]
+        },
+        {
+          "description": "Fuzzy search for John Williams should still work",
+          "queryMember": {
+            "id": 999,
+            "firstname": "John",
+            "surname": "Willams",
+            "birthdate": "1985-12-03T00:00:00Z"
+          },
+          "expectedCount": "any",
+          "expectedIds": [2],
+          "requireScore": true,
+          "maxScore": 1.0,
+          "minScore": 0.3
+        }
+      ]
+    },
+    {
+      "name": "RemoveMultipleEntries",
+      "description": "Test bulk removal of entries",
+      "setupOp": {
+        "description": "Add John Smith back for bulk removal test",
+        "rebuildWith": ["all"]
+      },
+      "removalOp": {
+        "description": "Remove both John Smith and John Williams",
+        "removeIds": [1, 2]
+      },
+      "queries": [
+        {
+          "description": "John Smith should not be found after bulk removal",
+          "queryMember": {
+            "id": 999,
+            "firstname": "John",
+            "surname": "Smith",
+            "birthdate": "1990-05-15T00:00:00Z"
+          },
+          "expectedCount": "zero",
+          "shouldNotFind": [1]
+        },
+        {
+          "description": "John Williams should not be found after bulk removal",
+          "queryMember": {
+            "id": 999,
+            "firstname": "John",
+            "surname": "Williams",
+            "birthdate": "1985-12-03T00:00:00Z"
+          },
+          "expectedCount": "zero",
+          "shouldNotFind": [2]
+        }
+      ]
+    }
+  ]
+}

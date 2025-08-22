@@ -88,3 +88,47 @@ func (fmc *FuzzyMatcherCore[T]) CleanMatches(
 
 	return matchedEntriesCleaned
 }
+
+// Removes specified entries
+func (fmc *FuzzyMatcherCore[T]) RemoveEntries(entries []T) {
+	root := fmc.Root
+	if root == nil {
+		return
+	}
+
+	// loop over each entry
+	for _, entry := range entries {
+		fuzzyEntry := entry.CreateFuzzyEntry()
+
+		// loop over each key/field
+		for key, field := range fuzzyEntry.Key {
+			// create the search string
+			normalized := fmc.NormalizeField(field)
+			searchString := string(key) + ":" + normalized
+
+			// traverse the trie
+			node := root
+			for _, char := range searchString {
+				char = rune(char)
+				child, ok := node.Children[char]
+
+				if !ok {
+					break
+				}
+
+				node = child
+
+				if node.IsEndofString {
+					delete(node.ID, fuzzyEntry.ID)     // delete the id from the endofstring node
+					delete(fmc.Entries, fuzzyEntry.ID) // delete the entry
+
+					if len(node.ID) == 0 {
+						// If the node has no IDs left, prune it
+						node.IsEndofString = false
+						fmc.Prune(node)
+					}
+				}
+			}
+		}
+	}
+}
