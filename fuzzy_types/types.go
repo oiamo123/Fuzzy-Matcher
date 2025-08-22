@@ -63,12 +63,7 @@ type FuzzyMatcherCoreParameters[T FuzzyMatcherDataSource] struct {
 }
 
 // VisitKey is a key to identify visited nodes during recursion
-type VisitKey struct {
-    Index int
-    Node  *FuzzyMatcherNode
-    Edits int
-    Depth int
-}
+type VisitKey uint64
 
 // MatchCandidate represents a potential match during search
 type MatchCandidate struct {

@@ -3,6 +3,7 @@ package fuzzymatchertypes
 // RecurseParameters contains all parameters needed for recursive matching
 type RecurseParameters struct {
     Word              []rune
+    Key               []rune
     Index             int
     Node              *FuzzyMatcherNode
     Path              []rune
@@ -27,6 +28,7 @@ func (rp *RecurseParameters) Clone() RecurseParameters {
 
     return RecurseParameters{
         Word:              rp.Word,
+        Key:               rp.Key,
         Index:             rp.Index,
         Node:              rp.Node,
         Path:              newPath,

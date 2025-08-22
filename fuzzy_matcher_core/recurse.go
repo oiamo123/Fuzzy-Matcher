@@ -41,54 +41,6 @@ var multiCharMisreads = map[string][][]rune{
 }
 
 /*
-CHECKS FLOW
-1. Increment depth and num edits
-2. Check if node has been visited and update as needed
-3. Check if current node is end of string
-4. Check if we've exceeded limits
-*/
-
-func (fmc *FuzzyMatcherCore[T]) ProcessNode(params *ft.RecurseParameters) ([]ft.MatchCandidate, bool) {
-    // 1. Apply depth and edit costs
-    params.Depth += params.DepthIncrement
-    params.NumEdits += params.NumEditsIncrement
-
-    // 2. Check if already visited
-	key := ft.VisitKey{
-		Index: params.Index,
-		Node:  params.Node,
-		Edits: params.NumEdits,
-		Depth:   params.Depth,
-	}
-
-    params.Visited[key] = struct{}{}
-
-    matches := []ft.MatchCandidate{}
-
-    // 3. If this node is an end-of-string, add match
-    if params.Node.IsEndofString {
-        ids := make([]int, 0, len(params.Node.ID))
-        for id := range params.Node.ID {
-            ids = append(ids, id)
-        }
-
-        matches = append(matches, ft.MatchCandidate{
-            Text:        string(params.Path),
-            EditCount:   params.NumEdits,
-            SearchDepth: params.Depth,
-            ID:          ids,
-        })
-    }
-
-    // 4. Early exit if over limits
-    if params.NumEdits > params.MaxEdits || params.Depth > params.MaxDepth {
-        return matches, false // stop further recursion/BFS
-    }
-
-    return matches, true // continue exploring
-}
-
-/*
 RECURSE FLOW:
 1. Perform BFS if the index has reached the end of the search word
 	- IE: Searching for "Mike", "Michael" is a match

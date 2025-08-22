@@ -7,22 +7,6 @@ import (
 	ft "github.com/oiamo123/fuzzy_matcher/fuzzy_types"
 )
 
-func (fmc *FuzzyMatcherCore[T]) ComputeScore(
-	path, word []rune, 
-	parent, child *ft.FuzzyMatcherNode, 
-	method ft.CalculationMethod, 
-) float64 {
-	// Next character prediction
-	predictedChar := float64(child.Count) / float64(parent.Count)
-
-	s1 := strings.Split(string(path), ":")[1]
-	s2 := strings.Split(string(word), ":")[1]
-	
-	distance := fmc.CalculateSimilarity(s1, s2, method)
-
-    return float64(predictedChar*0.4) + float64(distance*0.6)
-}
-
 /*
 BREADTH-FIRST-SEARCH FLOW
 1. Initialize a priority queue (max heap) for exploring nodes
@@ -50,13 +34,7 @@ func (fmc *FuzzyMatcherCore[T]) BreadthFirstSearch(params ft.RecurseParameters) 
 	})
 
 	// 3.
-	key := ft.VisitKey{
-		Index:   params.Index,
-		Node:    params.Node,
-		Edits:   params.NumEdits,
-		Depth:   params.Depth,
-	}
-
+	key := fmc.MakeKey(params.Index, params.NumEdits, params.Depth, int(params.Node.Char))
 	delete(params.Visited, key)
 
 	// 4.
@@ -92,6 +70,7 @@ func (fmc *FuzzyMatcherCore[T]) BreadthFirstSearch(params ft.RecurseParameters) 
 			score := fmc.ComputeScore(
 				branch.Path,
 				branch.Word,
+				branch.Key,
 				branch.Node.Parent,
 				branch.Node,
 				branch.CalculationMethod,

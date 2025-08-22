@@ -141,6 +141,7 @@ func (fmc *FuzzyMatcherCore[T]) SearchFuzzy(entry ft.FuzzyMatcherDataSource) (bo
 
 			recurseParameters := ft.RecurseParameters{
 				Word: []rune(searchString),
+				Key:  []rune(key),
 				Index: 0,
 				Node: fmc.Root,
 				Path: make([]rune, 0),
