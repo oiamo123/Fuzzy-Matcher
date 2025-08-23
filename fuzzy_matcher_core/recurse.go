@@ -45,19 +45,22 @@ RECURSE FLOW:
 1. Perform BFS if the index has reached the end of the search word
 	- IE: Searching for "Mike", "Michael" is a match
 
-2. Perform Normal match
+2. Early exit
+	- IE: We're at MaxEdits - 1 and the current nodes children doesn't contain the current character
+
+3. Perform Normal match
 	- IE: Current char is 'm' and current node has child node 'm'
 
-3. If the current character is editable, we can also:
-	3.1. Skip the current character
+4. If the current character is editable, we can also:
+	4.1. Skip the current character
 	- IE: Searching for "Mike" and on 'i', we can skip to 'k'
-	3.2. Perform BFS
+	4.2. Perform BFS
 	- IE: Searching for "Mike" and on 'i', we can perform BFS to find "Michael"
 
-4. If the fuzzy matcher is correcting OCR misreads, we can also:
-	4.1. Check for single-character ocr misreads
+5. If the fuzzy matcher is correcting OCR misreads, we can also:
+	5.1. Check for single-character ocr misreads
 	- "Searching for "M1ke", switch the '1' out with an 'i'"
-	4.2. Check for multi-character ocr misreads
+	5.2. Check for multi-character ocr misreads
 	- "Searching for "Srnith", switch the 'rn' out with an 'm'"
 */
 
@@ -74,10 +77,12 @@ func (fmc *FuzzyMatcherCore[T]) Recurse(params ft.RecurseParameters) []ft.MatchC
 
 	char := params.Word[params.Index]
 
-	// fmt.Printf("Recurse: Path: %s, NumEdits: %d, Depth: %d, Word: %s\n",
-	// 	string(params.Path), params.NumEdits, params.Depth, string(params.Word))
-
 	// 2.
+	if params.NumEdits == params.MaxEdits-1 && params.Node.Children[char] == nil {
+		return matches
+	}
+
+	// 3.
 	if params.Node.Children[char] != nil {
 		branch := params.Clone()
 		branch.Index++
@@ -93,9 +98,9 @@ func (fmc *FuzzyMatcherCore[T]) Recurse(params ft.RecurseParameters) []ft.MatchC
 		}
 	}
 
-	// 3.
+	// 4.
 	if params.EditableFields[params.Index] {
-		// 3.1.
+		// 4.1.
 		if params.Index+1 <= len(params.Word) {
 			branch := params.Clone()
 			branch.Index++
@@ -109,12 +114,12 @@ func (fmc *FuzzyMatcherCore[T]) Recurse(params ft.RecurseParameters) []ft.MatchC
 			}
 		}
 
-		// 3.2. 
+		// 4.2. 
 		matches = append(matches, fmc.BreadthFirstSearch(params.Clone())...)
 
-		// If the fuzzy matcher is correcting OCR misreads
+		// 5.
 		if fmc.CoreParams.CorrectOcrMisreads {
-			// 5.
+			// 5.1
 			for _, sub := range ocrMisreads[char] {
 				if params.Node.Children[sub] != nil {
 					branch := params.Clone()	
@@ -132,7 +137,7 @@ func (fmc *FuzzyMatcherCore[T]) Recurse(params ft.RecurseParameters) []ft.MatchC
 				}
 			}
 
-			// 6. 
+			// 5.2
 			if params.Index+1 < len(params.Word) {
 				twoChars := string(params.Word[params.Index : params.Index+2])
 

@@ -16,8 +16,9 @@ BREADTH-FIRST-SEARCH FLOW
    4.1. Get the highest priority node
    4.2. Process the node
    4.3. Expand the node's children
-   4.4. Compute the current nodes score using prefix prediction / similarity
-   4.5. Add the new branch to the priority queue
+   4.4. Early exit if we're at maxEdits-1 and the current node's children doesn't contain the current character
+   4.5. Compute the current nodes score using prefix prediction / similarity
+   4.6. Add the new branch to the priority queue
 5. Add the node back to the visited array
 */
 
@@ -54,6 +55,11 @@ func (fmc *FuzzyMatcherCore[T]) BreadthFirstSearch(params ft.RecurseParameters) 
 
 		// 4.3
 		for ch, child := range node.Children {
+			// 4.4
+			if params.NumEdits == params.MaxEdits-1 && params.Node.Children[child.Char] == nil {
+				return matches
+			}
+
 			branch := nodePriority.Params.Clone()
 			branch.Path = append(branch.Path, ch)
 			branch.Node = child
@@ -66,7 +72,7 @@ func (fmc *FuzzyMatcherCore[T]) BreadthFirstSearch(params ft.RecurseParameters) 
     			branch.DepthIncrement = 1
 			}
 
-			// 4.4
+			// 4.5
 			score := fmc.ComputeScore(
 				branch.Path,
 				branch.Word,
@@ -80,7 +86,7 @@ func (fmc *FuzzyMatcherCore[T]) BreadthFirstSearch(params ft.RecurseParameters) 
 				continue
 			}
 
-			// 4.5
+			// 4.6
 			heap.Push(maxHeap, ft.NodePriority{
 				Params: branch,
 				Score:  score,

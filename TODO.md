@@ -2,12 +2,6 @@
 
 ## Easy Optimizations
 
-1. **Use uint64 for visit keys DONE**
-
-   - Replace string-based visit keys with integer hashes
-   - Reduces memory usage and improves comparison performance
-   - Implementation: `visitKey := uint64(runeSliceHash(path) ^ runeSliceHash(word[:idx]))`
-
 2. **Rune-based similarity calculation**
 
    - Eliminate string/rune conversions in hot paths
@@ -27,7 +21,6 @@
    - Consider field-specific caching strategies
 
 5. **Pruning optimizations**
-   - Skip branches if next char isn't in target word histogram when at max_edits-1
    - Track and prioritize common OCR misreads in branching decisions
    - Early termination for low-count branches with poor scores
    - Use `sync.Pool` for `RecurseParams.Clone()` to reduce GC pressure
