@@ -23,11 +23,11 @@ BREADTH-FIRST-SEARCH FLOW
 5. Add the node back to the visited array
 */
 
-func (fmc *FuzzyMatcherCore[T]) BreadthFirstSearch(params ft.RecurseParameters) []ft.MatchCandidate {
+func (fmc *FuzzyMatcherCore[T]) BreadthFirstSearch(params *ft.RecurseParameters) []*ft.MatchCandidate {
 	// 1.
 	maxHeap := &MaxHeap{}
 	heap.Init(maxHeap)
-	matches := []ft.MatchCandidate{}
+	matches := []*ft.MatchCandidate{}
 
 	// 2.
 	heap.Push(maxHeap, ft.NodePriority{
@@ -48,7 +48,7 @@ func (fmc *FuzzyMatcherCore[T]) BreadthFirstSearch(params ft.RecurseParameters) 
 
 		if !ok {
 			continue
-		} 
+		}
 
 		// 4.3
 		for ch, child := range node.Children {
@@ -68,10 +68,10 @@ func (fmc *FuzzyMatcherCore[T]) BreadthFirstSearch(params ft.RecurseParameters) 
 			branch.Index++
 			branch.DepthIncrement = 0
 			branch.NumEditsIncrement = 0
-			
+
 			if branch.Index-1 < len(branch.Word) && ch != branch.Word[branch.Index-1] {
-    			branch.NumEditsIncrement = 1
-    			branch.DepthIncrement = 1
+				branch.NumEditsIncrement = 1
+				branch.DepthIncrement = 1
 			}
 
 			// 4.5

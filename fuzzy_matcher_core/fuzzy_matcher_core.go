@@ -12,10 +12,10 @@ import (
 
 // FuzzyMatcherCore represents the core structure of the fuzzy matcher
 type FuzzyMatcherCore[T ft.FuzzyMatcherDataSource] struct {
-	Root               *ft.FuzzyMatcherNode
-	CoreParams         ft.FuzzyMatcherCoreParameters[T]
-	ExpiryHeap         ExpiryHeap
-	Entries            map[int]T
+	Root       *ft.FuzzyMatcherNode
+	CoreParams ft.FuzzyMatcherCoreParameters[T]
+	ExpiryHeap ExpiryHeap
+	Entries    map[int]T
 }
 
 const (
@@ -115,7 +115,7 @@ func (fmc *FuzzyMatcherCore[T]) SearchFuzzy(entry ft.FuzzyMatcherDataSource) (bo
 	parameters := entry.GetSearchParameters()
 
 	var wg sync.WaitGroup
-	results := make(chan ft.FieldResult, len(fuzzyEntry.Key))
+	results := make(chan *ft.FieldResult, len(fuzzyEntry.Key))
 
 	// Per-field goroutines
 	for key, field := range fuzzyEntry.Key {
@@ -139,27 +139,27 @@ func (fmc *FuzzyMatcherCore[T]) SearchFuzzy(entry ft.FuzzyMatcherDataSource) (bo
 				}
 			}
 
-			recurseParameters := ft.RecurseParameters{
-				Word: []rune(searchString),
-				Key:  []rune(key),
-				Index: 0,
-				Node: fmc.Root,
-				Path: make([]rune, 0),
-				MaxDepth: parameters.MaxDepth[key],
-				Depth: 0,
-				DepthIncrement: 0,
-				NumEdits: 0,
-				MaxEdits: parameters.MaxEdits[key],
+			recurseParameters := &ft.RecurseParameters{
+				Word:              []rune(searchString),
+				Key:               []rune(key),
+				Index:             0,
+				Node:              fmc.Root,
+				Path:              make([]rune, 0),
+				MaxDepth:          parameters.MaxDepth[key],
+				Depth:             0,
+				DepthIncrement:    0,
+				NumEdits:          0,
+				MaxEdits:          parameters.MaxEdits[key],
 				NumEditsIncrement: 0,
-				EditableFields: editableFields,
-				Visited: make(map[*ft.FuzzyMatcherNode]int),
+				EditableFields:    editableFields,
+				Visited:           make(map[*ft.FuzzyMatcherNode]int),
 				CalculationMethod: parameters.CalculationMethods[key],
 				MinDistance:       parameters.MinDistances[key],
 			}
 
 			matches := fmc.Recurse(recurseParameters)
 
-			results <- ft.FieldResult{Key: key, Matches: matches}
+			results <- &ft.FieldResult{Key: key, Matches: matches}
 		}(key, field)
 	}
 
@@ -170,7 +170,7 @@ func (fmc *FuzzyMatcherCore[T]) SearchFuzzy(entry ft.FuzzyMatcherDataSource) (bo
 	}()
 
 	// Collect all results first (thread-safe)
-	allResults := make(map[ft.Field][]ft.MatchCandidate)
+	allResults := make(map[ft.Field][]*ft.MatchCandidate)
 	for res := range results {
 		if res.Err != nil {
 			// Handle error if needed

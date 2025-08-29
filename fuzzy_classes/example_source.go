@@ -8,16 +8,16 @@ import (
 )
 
 type ExampleSource struct {
-	ID             int        `json:"id"`
-	Firstname      string     `json:"firstname"`
-	Surname        string     `json:"surname"`
-	Birthdate      time.Time  `json:"birthdate"`
-	EventStartUtc  time.Time  `json:"event_start_utc"` // for example
-	EventEndUtc    time.Time  `json:"event_end_utc"` // for example
+	ID            int       `json:"id"`
+	Firstname     string    `json:"firstname"`
+	Surname       string    `json:"surname"`
+	Birthdate     time.Time `json:"birthdate"`
+	EventStartUtc time.Time `json:"event_start_utc"` // for example
+	EventEndUtc   time.Time `json:"event_end_utc"`   // for example
 }
 
 // Defines the number of edits and search depth allowed for each field
-func (s ExampleSource) GetSearchParameters() ft.FuzzyMatcherParameters {
+func (s ExampleSource) GetSearchParameters() *ft.FuzzyMatcherParameters {
 	isValid := s.ValidateEntry()
 
 	var maxDepth map[ft.Field]int
@@ -71,7 +71,7 @@ func (s ExampleSource) GetSearchParameters() ft.FuzzyMatcherParameters {
 		ft.Birthdate: 1,
 	}
 
-	return ft.FuzzyMatcherParameters{
+	return &ft.FuzzyMatcherParameters{
 		MaxDepth:           maxDepth,
 		MaxEdits:           maxEdits,
 		Weights:            weights,

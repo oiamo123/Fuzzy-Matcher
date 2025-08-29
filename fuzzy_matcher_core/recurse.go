@@ -64,7 +64,7 @@ RECURSE FLOW:
 	- "Searching for "Srnith", switch the 'rn' out with an 'm'"
 */
 
-func (fmc *FuzzyMatcherCore[T]) Recurse(params ft.RecurseParameters) []ft.MatchCandidate {
+func (fmc *FuzzyMatcherCore[T]) Recurse(params *ft.RecurseParameters) []*ft.MatchCandidate {
 	// 1.
 	if params.Index >= len(params.Word) {
 		return fmc.BreadthFirstSearch(params.Clone())
@@ -72,7 +72,7 @@ func (fmc *FuzzyMatcherCore[T]) Recurse(params ft.RecurseParameters) []ft.MatchC
 
 	matches, ok := fmc.ProcessNode(params)
 	if !ok {
-    	return matches // stop recursion
+		return matches // stop recursion
 	}
 
 	char := params.Word[params.Index]
@@ -114,7 +114,7 @@ func (fmc *FuzzyMatcherCore[T]) Recurse(params ft.RecurseParameters) []ft.MatchC
 			}
 		}
 
-		// 4.2. 
+		// 4.2.
 		matches = append(matches, fmc.BreadthFirstSearch(params.Clone())...)
 
 		// 5.
@@ -122,7 +122,7 @@ func (fmc *FuzzyMatcherCore[T]) Recurse(params ft.RecurseParameters) []ft.MatchC
 			// 5.1
 			for _, sub := range ocrMisreads[char] {
 				if params.Node.Children[sub] != nil {
-					branch := params.Clone()	
+					branch := params.Clone()
 					branch.Index++
 					branch.Node = branch.Node.Children[sub]
 					branch.Path = append(branch.Path, sub)
