@@ -12,15 +12,17 @@ CHECKS FLOW
 4. Check if we've exceeded limits
 */
 
-func (fmc *FuzzyMatcherCore[T]) ProcessNode(params *ft.RecurseParameters) ([]ft.MatchCandidate, bool) {
+func (fmc *FuzzyMatcherCore[T]) ProcessNode(params ft.RecurseParameters) ([]ft.MatchCandidate, bool) {
     // 1. Apply depth and edit costs
     params.Depth += params.DepthIncrement
     params.NumEdits += params.NumEditsIncrement
 
     // 2. Check if already visited
-	key := fmc.MakeKey(params.Index, params.NumEdits, params.Depth, int(params.Node.Char))
+    if params.Visited[params.Node] != 0 && params.NumEdits >= params.Visited[params.Node] {
+        return nil, false // stop further recursion/BFS
+    }
 
-    params.Visited[key] = struct{}{}
+    params.Visited[params.Node] = params.NumEdits
 
     matches := []ft.MatchCandidate{}
 
@@ -51,27 +53,14 @@ func (fmc *FuzzyMatcherCore[T]) ProcessNode(params *ft.RecurseParameters) ([]ft.
 COMPUTES SCORE
 - Uses next character prediction + distance to calculate similarity
 */
-func (fmc *FuzzyMatcherCore[T]) ComputeScore(
-	path, word, key []rune, 
-	parent, child *ft.FuzzyMatcherNode, 
-	method ft.CalculationMethod, 
-) float64 {
+func (fmc *FuzzyMatcherCore[T]) ComputeScore(params ft.RecurseParameters) float64 {
 	// Next character prediction
-	predictedChar := float64(child.Count) / float64(parent.Count)
+	predictedChar := float64(params.Node.Count) / float64(params.Node.Parent.Count)
 
-	s1 := path[len(key)+1:]
-	s2 := word[len(key)+1:]
+	s1 := params.Path[len(params.Key)+1:]
+	s2 := params.Word[len(params.Key)+1:]
 
-	distance := fmc.CalculateSimilarity(string(s1), string(s2), method)
+	distance := fmc.CalculateSimilarity(string(s1), string(s2), params.CalculationMethod)
 
     return float64(predictedChar*0.4) + float64(distance*0.6)
-}
-
-func (fmc *FuzzyMatcherCore[T]) MakeKey(index, edits, depth, nodeID int) ft.VisitKey {
-	return ft.VisitKey(
-		(uint64(index) << 48) |
-        (uint64(edits) << 32) |
-        (uint64(depth) << 16) |
-        uint64(nodeID & 0xFFFF),
-	)
 }

@@ -70,7 +70,7 @@ func (fmc *FuzzyMatcherCore[T]) Recurse(params ft.RecurseParameters) []ft.MatchC
 		return fmc.BreadthFirstSearch(params.Clone())
 	}
 
-	matches, ok := fmc.ProcessNode(&params)
+	matches, ok := fmc.ProcessNode(params)
 	if !ok {
     	return matches // stop recursion
 	}

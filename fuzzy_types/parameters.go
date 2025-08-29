@@ -14,14 +14,14 @@ type RecurseParameters struct {
     MaxEdits          int
     NumEditsIncrement int
     EditableFields    []bool
-    Visited           map[VisitKey]struct{}
+    Visited           map[*FuzzyMatcherNode]int
     CalculationMethod CalculationMethod
     MinDistance       float64
 }
 
 func (rp *RecurseParameters) Clone() RecurseParameters {
     newPath := append([]rune{}, rp.Path...)
-    newVisited := make(map[VisitKey]struct{}, len(rp.Visited))
+    newVisited := make(map[*FuzzyMatcherNode]int, len(rp.Visited))
     for k, v := range rp.Visited {
         newVisited[k] = v
     }

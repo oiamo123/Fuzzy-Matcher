@@ -152,7 +152,7 @@ func (fmc *FuzzyMatcherCore[T]) SearchFuzzy(entry ft.FuzzyMatcherDataSource) (bo
 				MaxEdits: parameters.MaxEdits[key],
 				NumEditsIncrement: 0,
 				EditableFields: editableFields,
-				Visited: make(map[ft.VisitKey]struct{}),
+				Visited: make(map[*ft.FuzzyMatcherNode]int),
 				CalculationMethod: parameters.CalculationMethods[key],
 				MinDistance:       parameters.MinDistances[key],
 			}

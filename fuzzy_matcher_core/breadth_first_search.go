@@ -2,7 +2,6 @@ package fuzzymatchercore
 
 import (
 	"container/heap"
-	"strings"
 
 	ft "github.com/oiamo123/fuzzy_matcher/fuzzy_types"
 )
@@ -16,7 +15,9 @@ BREADTH-FIRST-SEARCH FLOW
    4.1. Get the highest priority node
    4.2. Process the node
    4.3. Expand the node's children
-   4.4. Early exit if we're at maxEdits-1 and the current node's children doesn't contain the current character
+   4.4. Prune node
+      4.4.1. Skip node if we're at maxEdits-1 and the current node's children doesn't contain the current character
+	  4.4.2. Only search the character if the current edits is less than the number of edits in the visited key
    4.5. Compute the current nodes score using prefix prediction / similarity
    4.6. Add the new branch to the priority queue
 5. Add the node back to the visited array
@@ -34,10 +35,6 @@ func (fmc *FuzzyMatcherCore[T]) BreadthFirstSearch(params ft.RecurseParameters) 
 		Score:  0,
 	})
 
-	// 3.
-	key := fmc.MakeKey(params.Index, params.NumEdits, params.Depth, int(params.Node.Char))
-	delete(params.Visited, key)
-
 	// 4.
 	for maxHeap.Len() > 0 {
 		// 4.1
@@ -45,7 +42,7 @@ func (fmc *FuzzyMatcherCore[T]) BreadthFirstSearch(params ft.RecurseParameters) 
 		node := nodePriority.Params.Node
 
 		// 4.2
-		match, ok := fmc.ProcessNode(&nodePriority.Params)
+		match, ok := fmc.ProcessNode(nodePriority.Params)
 
 		matches = append(matches, match...)
 
@@ -55,9 +52,14 @@ func (fmc *FuzzyMatcherCore[T]) BreadthFirstSearch(params ft.RecurseParameters) 
 
 		// 4.3
 		for ch, child := range node.Children {
-			// 4.4
+			// 4.4.1
 			if params.NumEdits == params.MaxEdits-1 && params.Node.Children[child.Char] == nil {
-				return matches
+				continue
+			}
+
+			// 4.4.2
+			if params.NumEdits > params.Visited[child] {
+				continue
 			}
 
 			branch := nodePriority.Params.Clone()
@@ -73,16 +75,9 @@ func (fmc *FuzzyMatcherCore[T]) BreadthFirstSearch(params ft.RecurseParameters) 
 			}
 
 			// 4.5
-			score := fmc.ComputeScore(
-				branch.Path,
-				branch.Word,
-				branch.Key,
-				branch.Node.Parent,
-				branch.Node,
-				branch.CalculationMethod,
-			)
+			score := fmc.ComputeScore(branch)
 
-			if len(strings.Split(string(branch.Path), ":")[1]) >= 4 && score < float64(params.MinDistance) {
+			if len(branch.Path[len(branch.Key)+1:]) >= 4 && score < float64(branch.MinDistance) {
 				continue
 			}
 
@@ -93,9 +88,6 @@ func (fmc *FuzzyMatcherCore[T]) BreadthFirstSearch(params ft.RecurseParameters) 
 			})
 		}
 	}
-
-	// 5.
-	params.Visited[key] = struct{}{}
 
 	return matches
 }
