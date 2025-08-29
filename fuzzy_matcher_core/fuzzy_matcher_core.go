@@ -4,7 +4,6 @@ import (
 	"container/heap"
 	"fmt"
 	"sort"
-	"strings"
 	"sync"
 
 	ft "github.com/oiamo123/fuzzy_matcher/fuzzy_types"
@@ -115,7 +114,12 @@ func (fmc *FuzzyMatcherCore[T]) SearchFuzzy(entry ft.FuzzyMatcherDataSource) (bo
 	parameters := entry.GetSearchParameters()
 
 	var wg sync.WaitGroup
-	results := make(chan *ft.FieldResult, len(fuzzyEntry.Key))
+
+	// Shared maps for results - no race conditions since each goroutine writes to different fields
+	matchedEntries := make(map[int]map[ft.Field]string)
+	matchedEntriesCount := make(map[int]map[ft.Field]int)
+	matchedSimilarities := make(map[int]map[ft.Field]float64)
+	var mapMutex sync.Mutex
 
 	// Per-field goroutines
 	for key, field := range fuzzyEntry.Key {
@@ -159,52 +163,36 @@ func (fmc *FuzzyMatcherCore[T]) SearchFuzzy(entry ft.FuzzyMatcherDataSource) (bo
 
 			matches := fmc.Recurse(recurseParameters)
 
-			results <- &ft.FieldResult{Key: key, Matches: matches}
-		}(key, field)
-	}
+			// Filter by edit count only in the goroutine, similarity filtering happens later
+			maxEdits := parameters.MaxEdits[key]
 
-	// Close results channel after all workers finish
-	go func() {
-		wg.Wait()
-		close(results)
-	}()
-
-	// Collect all results first (thread-safe)
-	allResults := make(map[ft.Field][]*ft.MatchCandidate)
-	for res := range results {
-		if res.Err != nil {
-			// Handle error if needed
-			continue
-		}
-		allResults[res.Key] = res.Matches
-	}
-
-	// Now merge results sequentially (no race conditions)
-	matchedEntries := make(map[int]map[ft.Field]string)
-	matchedEntriesCount := make(map[int]map[ft.Field]int)
-
-	for key, matches := range allResults {
-		for _, match := range matches {
-			for _, id := range match.ID {
-				if match.EditCount > parameters.MaxEdits[key] {
+			mapMutex.Lock()
+			for _, match := range matches {
+				// Filter by edit count only
+				if match.EditCount > maxEdits {
 					continue
 				}
 
-				if matchedEntries[id] == nil {
-					matchedEntries[id] = make(map[ft.Field]string)
-				}
-				matchedEntries[id][key] = strings.Replace(match.Text, string(key)+":", "", 1)
+				for _, id := range match.ID {
+					if matchedEntries[id] == nil {
+						matchedEntries[id] = make(map[ft.Field]string)
+						matchedEntriesCount[id] = make(map[ft.Field]int)
+						matchedSimilarities[id] = make(map[ft.Field]float64)
+					}
 
-				if matchedEntriesCount[id] == nil {
-					matchedEntriesCount[id] = make(map[ft.Field]int)
-				}
-
-				if currentCount, exists := matchedEntriesCount[id][key]; !exists || currentCount > match.EditCount {
-					matchedEntriesCount[id][key] = match.EditCount
+					// Take the best match (lowest edit count or highest similarity)
+					if currentCount, exists := matchedEntriesCount[id][key]; !exists || currentCount > match.EditCount {
+						matchedEntries[id][key] = match.Text[len(string(key))+1:]
+						matchedEntriesCount[id][key] = match.EditCount
+						matchedSimilarities[id][key] = match.Similarity
+					}
 				}
 			}
-		}
+			mapMutex.Unlock()
+		}(key, field)
 	}
+
+	wg.Wait()
 
 	// Remove all incomplete entries or entries that exceed max edits
 	// An entry is incomplete if it has any empty fields
@@ -214,55 +202,41 @@ func (fmc *FuzzyMatcherCore[T]) SearchFuzzy(entry ft.FuzzyMatcherDataSource) (bo
 		return false, nil
 	}
 
-	// track valid entries
+	// Build final entries with weighted scores
 	finalMatchedEntries := []ft.FuzzyMatch[T]{}
 
-	for id, match := range matchedEntriesCleaned {
-		similarities := make(map[ft.Field]float64)
+	for id := range matchedEntriesCleaned {
 		reject := false
 
-		// iterate through the keys
+		// Check if all required fields meet minimum similarity thresholds
 		for key := range fuzzyEntry.Key {
-			matchVal, exists := match[key]
-			origVal := fuzzyEntry.Key[key]
 			min := parameters.MinDistances[key]
 
+			similarity, exists := matchedSimilarities[id][key]
+
 			// Missing required field
-			if (!exists || matchVal == "") && min > 0 {
+			if !exists && min > 0 {
 				reject = true
 				break
 			}
 
-			matchNormalized := fmc.NormalizeField(matchVal)
-			originalNormalized := fmc.NormalizeField(origVal)
-
-			similarity := fmc.CalculateSimilarity(originalNormalized, matchNormalized, parameters.CalculationMethods[key])
-			if similarity < min {
-				similarity = 0
-			}
-
-			// if the min distance is not 0 and the distance == 0
-			if min == 0 && similarity == 0 {
-				continue
-			}
-
+			// Check minimum similarity threshold for individual fields
 			if min > 0 && similarity < min {
 				reject = true
 				break
 			}
-
-			similarities[key] = similarity
 		}
 
-		// skip entry
+		// skip entry if individual field requirements not met
 		if reject {
 			continue
 		}
 
+		// Calculate weighted score using pre-calculated similarities
 		var score float64
 		for key, weight := range parameters.Weights {
-			if distance, exists := similarities[key]; exists {
-				score += weight * distance
+			if similarity, exists := matchedSimilarities[id][key]; exists {
+				score += weight * similarity
 			}
 		}
 

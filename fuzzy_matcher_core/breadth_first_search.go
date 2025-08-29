@@ -30,7 +30,7 @@ func (fmc *FuzzyMatcherCore[T]) BreadthFirstSearch(params *ft.RecurseParameters)
 	matches := []*ft.MatchCandidate{}
 
 	// 2.
-	heap.Push(maxHeap, ft.NodePriority{
+	heap.Push(maxHeap, &ft.NodePriority{
 		Params: params,
 		Score:  0,
 	})
@@ -38,7 +38,7 @@ func (fmc *FuzzyMatcherCore[T]) BreadthFirstSearch(params *ft.RecurseParameters)
 	// 4.
 	for maxHeap.Len() > 0 {
 		// 4.1
-		nodePriority := heap.Pop(maxHeap).(ft.NodePriority)
+		nodePriority := heap.Pop(maxHeap).(*ft.NodePriority)
 		node := nodePriority.Params.Node
 
 		// 4.2
@@ -82,7 +82,7 @@ func (fmc *FuzzyMatcherCore[T]) BreadthFirstSearch(params *ft.RecurseParameters)
 			}
 
 			// 4.6
-			heap.Push(maxHeap, ft.NodePriority{
+			heap.Push(maxHeap, &ft.NodePriority{
 				Params: branch,
 				Score:  score,
 			})
