@@ -201,11 +201,10 @@ func TestFuzzyMatcherCore_Insert_And_Search(t *testing.T) {
 		members[i] = convertToWaveMember(member)
 	}
 
-	
 	params := ft.FuzzyMatcherCoreParameters[fc.ExampleSource]{
 		CorrectOcrMisreads: false,
 		UseExpiration:      false,
-		MaxEdits: 6,
+		MaxEdits:           6,
 	}
 
 	fuzzyMatcherCore := &fmc.FuzzyMatcherCore[fc.ExampleSource]{
@@ -241,7 +240,7 @@ func TestFuzzyMatcherCore_FuzzySearch_Comprehensive(t *testing.T) {
 	params := ft.FuzzyMatcherCoreParameters[fc.ExampleSource]{
 		CorrectOcrMisreads: false,
 		UseExpiration:      false,
-		MaxEdits: 6,
+		MaxEdits:           6,
 	}
 
 	fuzzyMatcherCore := &fmc.FuzzyMatcherCore[fc.ExampleSource]{
@@ -368,12 +367,12 @@ func loadWaveMembersTestData(t *testing.T) []fc.ExampleSource {
 
 	var testData struct {
 		Members []struct {
-			ID             string  `json:"id"`
-			Firstname      string  `json:"firstname"`
-			Surname        string  `json:"surname"`
-			Birthdate      string  `json:"birthdate"`
-			EventStartUtc  string  `json:"event_start_utc"`
-			EventEndUtc    string  `json:"event_end_utc"`
+			ID            string `json:"id"`
+			Firstname     string `json:"firstname"`
+			Surname       string `json:"surname"`
+			Birthdate     string `json:"birthdate"`
+			EventStartUtc string `json:"event_start_utc"`
+			EventEndUtc   string `json:"event_end_utc"`
 		} `json:"members"`
 	}
 	err = json.Unmarshal(data, &testData)
@@ -387,12 +386,12 @@ func loadWaveMembersTestData(t *testing.T) []fc.ExampleSource {
 		eventEnd, _ := time.Parse(time.RFC3339, tm.EventEndUtc)
 
 		members[i] = fc.ExampleSource{
-			ID:             id,
-			Firstname:      tm.Firstname,
-			Surname:        tm.Surname,
-			Birthdate:      birthdate,
-			EventStartUtc:  eventStart,
-			EventEndUtc:    eventEnd,
+			ID:            id,
+			Firstname:     tm.Firstname,
+			Surname:       tm.Surname,
+			Birthdate:     birthdate,
+			EventStartUtc: eventStart,
+			EventEndUtc:   eventEnd,
 		}
 	}
 
@@ -408,7 +407,7 @@ func TestFuzzyMatcherCore_FuzzySearch_EdgeCases(t *testing.T) {
 	params := ft.FuzzyMatcherCoreParameters[fc.ExampleSource]{
 		CorrectOcrMisreads: false,
 		UseExpiration:      false,
-		MaxEdits: 6,
+		MaxEdits:           6,
 	}
 
 	fuzzyMatcherCore := &fmc.FuzzyMatcherCore[fc.ExampleSource]{
@@ -490,7 +489,7 @@ func TestFuzzyMatcherCore_FuzzySearch_Nicknames(t *testing.T) {
 	params := ft.FuzzyMatcherCoreParameters[fc.ExampleSource]{
 		CorrectOcrMisreads: false,
 		UseExpiration:      false,
-		MaxEdits: 6,
+		MaxEdits:           6,
 	}
 
 	fuzzyMatcherCore := &fmc.FuzzyMatcherCore[fc.ExampleSource]{
@@ -585,17 +584,16 @@ func TestFuzzyMatcherCore_FuzzySearch_Legacy(t *testing.T) {
 		convertToWaveMember(basicTests.BasicTestMembers[0]),
 	}
 
-	
 	params := ft.FuzzyMatcherCoreParameters[fc.ExampleSource]{
 		CorrectOcrMisreads: false,
 		UseExpiration:      false,
-		MaxEdits: 6,
+		MaxEdits:           6,
 	}
 
 	fuzzyMatcherCore := &fmc.FuzzyMatcherCore[fc.ExampleSource]{
 		CoreParams: params,
 	}
-	
+
 	fuzzyMatcherCore.Build(members)
 
 	// Test fuzzy search with typos using JSON query
@@ -623,7 +621,7 @@ func TestFuzzyMatcherCore_EmptySearch(t *testing.T) {
 	params := ft.FuzzyMatcherCoreParameters[fc.ExampleSource]{
 		CorrectOcrMisreads: false,
 		UseExpiration:      false,
-		MaxEdits: 6,
+		MaxEdits:           6,
 	}
 
 	fuzzyMatcherCore := &fmc.FuzzyMatcherCore[fc.ExampleSource]{

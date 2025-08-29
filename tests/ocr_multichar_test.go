@@ -60,7 +60,7 @@ func testRnToMReplacement(t *testing.T, searchTerm, targetTerm string, expectedE
 	params := ft.FuzzyMatcherCoreParameters[fc.ExampleSource]{
 		CorrectOcrMisreads: true,
 		UseExpiration:      false,
-		MaxEdits: 10,
+		MaxEdits:           10,
 	}
 
 	fuzzyCore := &fmc.FuzzyMatcherCore[fc.ExampleSource]{
@@ -124,9 +124,9 @@ func testMultiCharReplacement(t *testing.T, searchTerm, targetTerm, multiChar, r
 	params := ft.FuzzyMatcherCoreParameters[fc.ExampleSource]{
 		CorrectOcrMisreads: true,
 		UseExpiration:      false,
-		MaxEdits: 6,
+		MaxEdits:           6,
 	}
-	
+
 	fuzzyCore := &fmc.FuzzyMatcherCore[fc.ExampleSource]{
 		CoreParams: params,
 	}
@@ -185,7 +185,7 @@ func testMixedOCRReplacement(t *testing.T, searchTerm, targetTerm string, expect
 	params := ft.FuzzyMatcherCoreParameters[fc.ExampleSource]{
 		CorrectOcrMisreads: true,
 		UseExpiration:      false,
-		MaxEdits: 6,
+		MaxEdits:           6,
 	}
 
 	fuzzyCore := &fmc.FuzzyMatcherCore[fc.ExampleSource]{
@@ -254,7 +254,7 @@ func benchmarkOCRSearch(b *testing.B, useOCR bool, searchTerm, targetTerm string
 	params := ft.FuzzyMatcherCoreParameters[fc.ExampleSource]{
 		CorrectOcrMisreads: useOCR,
 		UseExpiration:      false,
-		MaxEdits: 10,
+		MaxEdits:           10,
 	}
 
 	fuzzyCore := &fmc.FuzzyMatcherCore[fc.ExampleSource]{

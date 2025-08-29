@@ -16,7 +16,7 @@ import (
 // TestData structures for JSON-driven testing
 type RemoveEntriesTestData struct {
 	TestMembers []fc.ExampleSource `json:"testMembers"`
-	TestCases   []TestCase                `json:"testCases"`
+	TestCases   []TestCase         `json:"testCases"`
 }
 
 type TestCase struct {
@@ -33,14 +33,14 @@ type SetupOp struct {
 }
 
 type QuerySpec struct {
-	Description   string                  `json:"description"`
+	Description   string           `json:"description"`
 	QueryMember   fc.ExampleSource `json:"queryMember"`
-	ExpectedCount string                  `json:"expectedCount"` // "zero", "one", "multiple", "any"
-	ExpectedIds   []int                   `json:"expectedIds,omitempty"`
-	ShouldNotFind []int                   `json:"shouldNotFind,omitempty"`
-	RequireScore  bool                    `json:"requireScore,omitempty"`
-	MinScore      float64                 `json:"minScore,omitempty"`
-	MaxScore      float64                 `json:"maxScore,omitempty"`
+	ExpectedCount string           `json:"expectedCount"` // "zero", "one", "multiple", "any"
+	ExpectedIds   []int            `json:"expectedIds,omitempty"`
+	ShouldNotFind []int            `json:"shouldNotFind,omitempty"`
+	RequireScore  bool             `json:"requireScore,omitempty"`
+	MinScore      float64          `json:"minScore,omitempty"`
+	MaxScore      float64          `json:"maxScore,omitempty"`
 }
 
 type RemovalOp struct {
@@ -212,20 +212,20 @@ func TestFuzzyMatcher_Integration(t *testing.T) {
 	// Create test data
 	testMembers := []fc.ExampleSource{
 		{
-			ID:             1,
-			Firstname:      "John",
-			Surname:        "Smith",
-			Birthdate:      time.Date(1990, 5, 15, 0, 0, 0, 0, time.UTC),
-			EventStartUtc:  time.Date(2025, 8, 20, 18, 0, 0, 0, time.UTC),
-			EventEndUtc:    time.Date(2025, 8, 20, 23, 0, 0, 0, time.UTC),
+			ID:            1,
+			Firstname:     "John",
+			Surname:       "Smith",
+			Birthdate:     time.Date(1990, 5, 15, 0, 0, 0, 0, time.UTC),
+			EventStartUtc: time.Date(2025, 8, 20, 18, 0, 0, 0, time.UTC),
+			EventEndUtc:   time.Date(2025, 8, 20, 23, 0, 0, 0, time.UTC),
 		},
 		{
-			ID:             2,
-			Firstname:      "Sarah",
-			Surname:        "Johnson",
-			Birthdate:      time.Date(1985, 12, 3, 0, 0, 0, 0, time.UTC),
-			EventStartUtc:  time.Date(2025, 8, 20, 18, 0, 0, 0, time.UTC),
-			EventEndUtc:    time.Date(2025, 8, 20, 23, 0, 0, 0, time.UTC),
+			ID:            2,
+			Firstname:     "Sarah",
+			Surname:       "Johnson",
+			Birthdate:     time.Date(1985, 12, 3, 0, 0, 0, 0, time.UTC),
+			EventStartUtc: time.Date(2025, 8, 20, 18, 0, 0, 0, time.UTC),
+			EventEndUtc:   time.Date(2025, 8, 20, 23, 0, 0, 0, time.UTC),
 		},
 	}
 
@@ -420,20 +420,20 @@ func TestFuzzyMatcher_RemoveEntries(t *testing.T) {
 	// Create test data - John Smith and John Williams
 	testMembers := []fc.ExampleSource{
 		{
-			ID:             1,
-			Firstname:      "John",
-			Surname:        "Smith",
-			Birthdate:      time.Date(1990, 5, 15, 0, 0, 0, 0, time.UTC),
-			EventStartUtc:  time.Date(2025, 8, 20, 18, 0, 0, 0, time.UTC),
-			EventEndUtc:    time.Date(2025, 8, 20, 23, 0, 0, 0, time.UTC),
+			ID:            1,
+			Firstname:     "John",
+			Surname:       "Smith",
+			Birthdate:     time.Date(1990, 5, 15, 0, 0, 0, 0, time.UTC),
+			EventStartUtc: time.Date(2025, 8, 20, 18, 0, 0, 0, time.UTC),
+			EventEndUtc:   time.Date(2025, 8, 20, 23, 0, 0, 0, time.UTC),
 		},
 		{
-			ID:             2,
-			Firstname:      "John",
-			Surname:        "Williams",
-			Birthdate:      time.Date(1985, 12, 3, 0, 0, 0, 0, time.UTC),
-			EventStartUtc:  time.Date(2025, 8, 20, 18, 0, 0, 0, time.UTC),
-			EventEndUtc:    time.Date(2025, 8, 20, 23, 0, 0, 0, time.UTC),
+			ID:            2,
+			Firstname:     "John",
+			Surname:       "Williams",
+			Birthdate:     time.Date(1985, 12, 3, 0, 0, 0, 0, time.UTC),
+			EventStartUtc: time.Date(2025, 8, 20, 18, 0, 0, 0, time.UTC),
+			EventEndUtc:   time.Date(2025, 8, 20, 23, 0, 0, 0, time.UTC),
 		},
 	}
 
@@ -504,12 +504,12 @@ func TestFuzzyMatcher_RemoveEntries(t *testing.T) {
 		// Step 2: Remove John Smith
 		johnSmithToRemove := []fc.ExampleSource{
 			{
-				ID:             1,
-				Firstname:      "John",
-				Surname:        "Smith",
-				Birthdate:      time.Date(1990, 5, 15, 0, 0, 0, 0, time.UTC),
-				EventStartUtc:  time.Date(2025, 8, 20, 18, 0, 0, 0, time.UTC),
-				EventEndUtc:    time.Date(2025, 8, 20, 23, 0, 0, 0, time.UTC),
+				ID:            1,
+				Firstname:     "John",
+				Surname:       "Smith",
+				Birthdate:     time.Date(1990, 5, 15, 0, 0, 0, 0, time.UTC),
+				EventStartUtc: time.Date(2025, 8, 20, 18, 0, 0, 0, time.UTC),
+				EventEndUtc:   time.Date(2025, 8, 20, 23, 0, 0, 0, time.UTC),
 			},
 		}
 
@@ -657,12 +657,12 @@ func TestFuzzyMatcher_RemoveEntries(t *testing.T) {
 		// Add John Smith back for this test
 		johnSmithBack := []fc.ExampleSource{
 			{
-				ID:             1,
-				Firstname:      "John",
-				Surname:        "Smith",
-				Birthdate:      time.Date(1990, 5, 15, 0, 0, 0, 0, time.UTC),
-				EventStartUtc:  time.Date(2025, 8, 20, 18, 0, 0, 0, time.UTC),
-				EventEndUtc:    time.Date(2025, 8, 20, 23, 0, 0, 0, time.UTC),
+				ID:            1,
+				Firstname:     "John",
+				Surname:       "Smith",
+				Birthdate:     time.Date(1990, 5, 15, 0, 0, 0, 0, time.UTC),
+				EventStartUtc: time.Date(2025, 8, 20, 18, 0, 0, 0, time.UTC),
+				EventEndUtc:   time.Date(2025, 8, 20, 23, 0, 0, 0, time.UTC),
 			},
 		}
 

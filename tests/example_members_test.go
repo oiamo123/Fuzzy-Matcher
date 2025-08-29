@@ -21,12 +21,12 @@ type TestData struct {
 }
 
 type TestMember struct {
-	ID             string  `json:"id"`
-	Firstname      string  `json:"firstname"`
-	Surname        string  `json:"surname"`
-	Birthdate      string  `json:"birthdate"`
-	EventStartUtc  string  `json:"event_start_utc"`
-	EventEndUtc    string  `json:"event_end_utc"`
+	ID            string `json:"id"`
+	Firstname     string `json:"firstname"`
+	Surname       string `json:"surname"`
+	Birthdate     string `json:"birthdate"`
+	EventStartUtc string `json:"event_start_utc"`
+	EventEndUtc   string `json:"event_end_utc"`
 }
 
 // Convert test member to ExampleSource
@@ -37,12 +37,12 @@ func (tm TestMember) ToExampleSource() fc.ExampleSource {
 	eventEnd, _ := time.Parse(time.RFC3339, tm.EventEndUtc)
 
 	return fc.ExampleSource{
-		ID:             id,
-		Firstname:      tm.Firstname,
-		Surname:        tm.Surname,
-		Birthdate:      birthdate,
-		EventStartUtc:  eventStart,
-		EventEndUtc:    eventEnd,
+		ID:            id,
+		Firstname:     tm.Firstname,
+		Surname:       tm.Surname,
+		Birthdate:     birthdate,
+		EventStartUtc: eventStart,
+		EventEndUtc:   eventEnd,
 	}
 }
 
@@ -68,7 +68,7 @@ func createMockFuzzyMatcherCore(t *testing.T, members []fc.ExampleSource) *fmc.F
 	params := ft.FuzzyMatcherCoreParameters[fc.ExampleSource]{
 		CorrectOcrMisreads: false,
 		UseExpiration:      false,
-		MaxEdits: 6,
+		MaxEdits:           6,
 	}
 
 	fuzzyMatcherCore := &fmc.FuzzyMatcherCore[fc.ExampleSource]{
